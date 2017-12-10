@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("SingleTimer")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("SingleTimerEditorLib")]
+[assembly: AssemblyDescription("Editor for a SingleTimer object")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("SingleTimer")]
+[assembly: AssemblyCompany("AngryDane Software Colutions")]
+[assembly: AssemblyProduct("JobTimer 1.0")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

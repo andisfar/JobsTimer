@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2009
+VisualStudioVersion = 15.0.27004.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobTimer", "JobTimer\JobTimer.csproj", "{EF83D08F-129C-49F0-9E77-D7ADB3B795CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SingleTimer", "SingleTimer\SingleTimer.csproj", "{3F6DA516-9A0F-4866-99B8-389CB3AFA628}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SingleTimerEditorLib", "SingleTimer\SingleTimerEditorLib.csproj", "{3F6DA516-9A0F-4866-99B8-389CB3AFA628}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SingleTimerLib", "SingleTimerLib\SingleTimerLib.csproj", "{BFAE3F23-7238-44BC-8F81-BEE455C9501C}"
 EndProject

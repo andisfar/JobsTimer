@@ -68,13 +68,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SingleTimerForm.cs">
+    <Compile Include="SingleTimerEditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SingleTimerForm.Designer.cs">
-      <DependentUpon>SingleTimerForm.cs</DependentUpon>
+    <Compile Include="SingleTimerEditorForm.Designer.cs">
+      <DependentUpon>SingleTimerEditorForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -86,21 +85,15 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="SingleTimerForm.resx">
-      <DependentUpon>SingleTimerForm.cs</DependentUpon>
+    <EmbeddedResource Include="SingleTimerEditorForm.resx">
+      <DependentUpon>SingleTimerEditorForm.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <ProjectReference Include="..\SingleTimerLib\SingleTimerLib.csproj">
+      <Project>{bfae3f23-7238-44bc-8f81-bee455c9501c}</Project>
+      <Name>SingleTimerLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
