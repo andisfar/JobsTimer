@@ -88,10 +88,7 @@ namespace SingleTimer
             SetElapsedTimeLabel();
         }
 
-        private void HeartBeat_Tick(object sender, EventArgs e)
-        {
-            HandleTimerElapsed();
-        }
+        private void HeartBeat_Tick(object sender, EventArgs e) => HandleTimerElapsed();
 
         public void HandleTimerElapsed()
         {

@@ -19,7 +19,8 @@ namespace JobTimer
             Application.SetCompatibleTextRenderingDefault(false);
             Application.ThreadExit += Application_ThreadExit;
 
-            var mutex = new System.Threading.Mutex(true, Application.ProductName, out bool result);
+            bool result;
+            var mutex = new System.Threading.Mutex(true, Application.ProductName, out result);
             if (!result)
             {
                 JobTimerForm.GetInstance.jobTimersIcon.Visible = true;
@@ -29,6 +30,8 @@ namespace JobTimer
             }
             else
             {
+                //Application.Run(JobTimerForm.GetInstance);
+                //mutex.ReleaseMutex();
                 try
                 {
                     Application.Run(JobTimerForm.GetInstance);
