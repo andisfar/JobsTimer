@@ -623,26 +623,36 @@ namespace JobTimer
         private void QueryStartNewTimer(object sender, MouseEventArgs e)
         {
             // update the selected row
+
             DataGridView.HitTestInfo hitTest = timersDataGridView.HitTest(e.X, e.Y);
+            SingleTimer _t;
+
             if (hitTest.RowIndex < 0)
             {
-                SingleTimer _t = StartNewTimer;
+               _t  = StartNewTimer;
                 return;
             }
 
             Rows[hitTest.RowIndex].Selected = true;
-            if (e.Button == MouseButtons.Right && hitTest.ColumnIndex == 1)
-            {
-                QueryUserResetTimer(hitTest.RowIndex);
-                return;
-            }
 
-            if (e.Button == MouseButtons.Right && hitTest.ColumnIndex == 0)
-            {
-                QueryUserRenameTimer(hitTest.RowIndex);
-                return;
-            }
+            //if (e.Button == MouseButtons.Right && hitTest.ColumnIndex == 1)
+            //{
+            //    QueryUserResetTimer(hitTest.RowIndex);
+            //    return;
+            //}
 
+            //if (e.Button == MouseButtons.Right && hitTest.ColumnIndex == 0)
+            //{
+            //    QueryUserRenameTimer(hitTest.RowIndex);
+            //    return;
+            //}
+
+            if (hitTest.ColumnIndex >= 0)
+            {
+                _t = TimersList[Rows[hitTest.RowIndex].TimerCanonicalName()];
+                SingleTimerEditorForm _f = _t.Editor;
+                _f.Show(this);
+            }
         }
 
         private void QueryUserRenameTimer(int rowIndex)
