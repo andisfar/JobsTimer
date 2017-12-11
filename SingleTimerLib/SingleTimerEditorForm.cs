@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows.Forms;
-using SingleTimerLib;
 
-namespace SingleTimer
+namespace SingleTimerLib
 {
     public partial class SingleTimerEditorForm : Form
     {
+        public delegate void TimerElapsedTimeChangedHandler(object sender, SingleTimerEditorFormElapsedTimeEventArgs e);
+        public event TimerElapsedTimeChangedHandler TimerElapsedTimeChanged;
+
         public delegate void TimerNameChangedHandler(object sender, SingleTimerEditorFormNewNameEventArgs e);
         public event TimerNameChangedHandler TimerNameChanged;
 
@@ -15,19 +17,28 @@ namespace SingleTimer
             TimerNameChanged?.Invoke(this, e);
         }
 
+        public void HandleTimerElapsedTimeChanged(object sender, SingleTimerEditorFormElapsedTimeEventArgs e)
+        {
+            TimerElapsedTimeChanged?.Invoke(this, e);
+        }
+
         private SingleTimerLib.SingleTimer _timer = null;
 
         public SingleTimerLib.SingleTimer Timer { get => _timer; set => _timer = value; }
 
         public SingleTimerEditorForm()
         {
-
+            Timer = null;            
         }
 
-        public SingleTimerEditorForm(SingleTimerLib.SingleTimer t)
+        public delegate void SingleTimerEditorFormTimerNeeded(object sender, SingleTimerEditorFormTimerNeededEventArgs e);
+        public event SingleTimerEditorFormTimerNeeded QueryTimerNeeded;
+
+        private void QueryRetrieveTimer(object sender, SingleTimerEditorFormTimerNeededEventArgs e)
         {
-            Timer = t;
-            Timer.PropertyChanged += Timer_PropertyChanged;
+            QueryTimerNeeded?.Invoke(sender,e);
+            Timer = e.Timer;
+            if(Timer != null) Timer.PropertyChanged += Timer_PropertyChanged;
         }
 
         private void Timer_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -74,7 +85,15 @@ namespace SingleTimer
 
         private void SingleTimerEditorForm_Load(object sender, EventArgs e)
         {
+            QueryRetrieveTimer(this, new SingleTimerEditorFormTimerNeededEventArgs());
+        }
 
+        private void TimerNameLabel_Leave(object sender, EventArgs e)
+        {
+            if(Timer?.CanonicalName != TimerNameLabel.Text)
+            {
+                HandleTimerNameChanged(TimerNameLabel, new SingleTimerEditorFormNewNameEventArgs(Timer.RowIndex, TimerNameLabel.Text, Timer.CanonicalName));
+            }
         }
     }
 
@@ -111,6 +130,17 @@ namespace SingleTimer
             _rowIndex = rowIndex;
             _timerElapsedTimer = timerElapsedTime;
             _timerAlottedTime = timerAllotedTime;
+        }
+    }
+
+    public class SingleTimerEditorFormTimerNeededEventArgs : EventArgs
+    {
+        private SingleTimer _t = null;
+
+        public SingleTimer Timer { get => _t; set => _t = value; }
+        
+        public SingleTimerEditorFormTimerNeededEventArgs()
+        {
         }
     }
 

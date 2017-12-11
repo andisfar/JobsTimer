@@ -1,4 +1,4 @@
-﻿namespace SingleTimer
+﻿namespace SingleTimerLib
 {
     partial class SingleTimerEditorForm
     {
@@ -31,10 +31,10 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SingleTimerEditorForm));
             this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.TimerNameLabel = new System.Windows.Forms.TextBox();
-            this.TimerElapsedTimeLabel = new System.Windows.Forms.TextBox();
             this.acceptButton = new System.Windows.Forms.Button();
             this.rejectButton = new System.Windows.Forms.Button();
+            this.TimerNameLabel = new System.Windows.Forms.TextBox();
+            this.TimerElapsedTimeLabel = new System.Windows.Forms.TextBox();
             this.resetTimerbutton = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -45,7 +45,7 @@
             this.panel1.Controls.Add(this.tableLayoutPanel1);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panel1.Margin = new System.Windows.Forms.Padding(2);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(330, 77);
             this.panel1.TabIndex = 1;
@@ -56,7 +56,7 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 36F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 83F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 84F));
             this.tableLayoutPanel1.Controls.Add(this.acceptButton, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.rejectButton, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.TimerNameLabel, 0, 0);
@@ -64,36 +64,13 @@
             this.tableLayoutPanel1.Controls.Add(this.resetTimerbutton, 3, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.Size = new System.Drawing.Size(330, 77);
             this.tableLayoutPanel1.TabIndex = 3;
-            // 
-            // TimerNameLabel
-            // 
-            this.tableLayoutPanel1.SetColumnSpan(this.TimerNameLabel, 2);
-            this.TimerNameLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TimerNameLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F);
-            this.TimerNameLabel.Location = new System.Drawing.Point(3, 3);
-            this.TimerNameLabel.Name = "TimerNameLabel";
-            this.TimerNameLabel.Size = new System.Drawing.Size(204, 29);
-            this.TimerNameLabel.TabIndex = 0;
-            this.TimerNameLabel.WordWrap = false;
-            // 
-            // TimerElapsedTimeLabel
-            // 
-            this.tableLayoutPanel1.SetColumnSpan(this.TimerElapsedTimeLabel, 2);
-            this.TimerElapsedTimeLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TimerElapsedTimeLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TimerElapsedTimeLabel.Location = new System.Drawing.Point(213, 3);
-            this.TimerElapsedTimeLabel.Name = "TimerElapsedTimeLabel";
-            this.TimerElapsedTimeLabel.Size = new System.Drawing.Size(114, 29);
-            this.TimerElapsedTimeLabel.TabIndex = 1;
-            this.TimerElapsedTimeLabel.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.TimerElapsedTimeLabel.WordWrap = false;
             // 
             // acceptButton
             // 
@@ -117,6 +94,30 @@
             this.rejectButton.Text = "Cancel";
             this.rejectButton.UseVisualStyleBackColor = true;
             // 
+            // TimerNameLabel
+            // 
+            this.tableLayoutPanel1.SetColumnSpan(this.TimerNameLabel, 2);
+            this.TimerNameLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TimerNameLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F);
+            this.TimerNameLabel.Location = new System.Drawing.Point(3, 3);
+            this.TimerNameLabel.Name = "TimerNameLabel";
+            this.TimerNameLabel.Size = new System.Drawing.Size(204, 29);
+            this.TimerNameLabel.TabIndex = 0;
+            this.TimerNameLabel.WordWrap = false;
+            this.TimerNameLabel.Leave += new System.EventHandler(this.TimerNameLabel_Leave);
+            // 
+            // TimerElapsedTimeLabel
+            // 
+            this.tableLayoutPanel1.SetColumnSpan(this.TimerElapsedTimeLabel, 2);
+            this.TimerElapsedTimeLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TimerElapsedTimeLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TimerElapsedTimeLabel.Location = new System.Drawing.Point(213, 3);
+            this.TimerElapsedTimeLabel.Name = "TimerElapsedTimeLabel";
+            this.TimerElapsedTimeLabel.Size = new System.Drawing.Size(114, 29);
+            this.TimerElapsedTimeLabel.TabIndex = 1;
+            this.TimerElapsedTimeLabel.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.TimerElapsedTimeLabel.WordWrap = false;
+            // 
             // resetTimerbutton
             // 
             this.resetTimerbutton.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -138,13 +139,14 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.MaximizeBox = false;
             this.MaximumSize = new System.Drawing.Size(350, 120);
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(350, 120);
             this.Name = "SingleTimerEditorForm";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Load += new System.EventHandler(this.SingleTimerEditorForm_Load);
             this.panel1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
