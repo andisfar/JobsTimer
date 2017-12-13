@@ -26,7 +26,13 @@ namespace SingleTimerLib
 
         public SingleTimerLib.SingleTimer Timer { get => _timer; set => _timer = value; }
 
-        public SingleTimerEditorForm()
+        public int RowIndex { get => _rowIndex; }
+        int _rowIndex = -1;
+
+        public int Index { get => _rowIndex; }
+        int _columnIndex = -1;
+
+        public SingleTimerEditorForm(int rowIndex, int columnIndex)
         {
             Timer = null;            
         }
@@ -85,7 +91,7 @@ namespace SingleTimerLib
 
         private void SingleTimerEditorForm_Load(object sender, EventArgs e)
         {
-            QueryRetrieveTimer(this, new SingleTimerEditorFormTimerNeededEventArgs());
+            QueryRetrieveTimer(this, new SingleTimerEditorFormTimerNeededEventArgs(RowIndex));
         }
 
         private void TimerNameLabel_Leave(object sender, EventArgs e)
@@ -136,11 +142,14 @@ namespace SingleTimerLib
     public class SingleTimerEditorFormTimerNeededEventArgs : EventArgs
     {
         private SingleTimer _t = null;
+        private int _rowIndex = -1;
 
         public SingleTimer Timer { get => _t; set => _t = value; }
-        
-        public SingleTimerEditorFormTimerNeededEventArgs()
+        public int RowIndex { get => _rowIndex; }
+
+        public SingleTimerEditorFormTimerNeededEventArgs(int rowIndex)
         {
+            _rowIndex = rowIndex;
         }
     }
 

@@ -162,12 +162,11 @@
             this.timersDataGridView.Location = new System.Drawing.Point(0, 35);
             this.timersDataGridView.Margin = new System.Windows.Forms.Padding(2);
             this.timersDataGridView.Name = "timersDataGridView";
-            this.timersDataGridView.ReadOnly = true;
             this.timersDataGridView.RowTemplate.Height = 31;
             this.timersDataGridView.Size = new System.Drawing.Size(428, 181);
             this.timersDataGridView.TabIndex = 2;
+            this.timersDataGridView.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.timersDataGridView_CellBeginEdit);
             this.timersDataGridView.RowHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.TimersDataGridView_RowHeaderMouseClick);
-            this.timersDataGridView.MouseClick += new System.Windows.Forms.MouseEventHandler(this.TimersDataGridView_MouseClick);
             // 
             // timerNameDataGridViewTextBoxColumn
             // 
@@ -176,7 +175,6 @@
             this.timerNameDataGridViewTextBoxColumn.DividerWidth = 8;
             this.timerNameDataGridViewTextBoxColumn.HeaderText = "Timer Name";
             this.timerNameDataGridViewTextBoxColumn.Name = "timerNameDataGridViewTextBoxColumn";
-            this.timerNameDataGridViewTextBoxColumn.ReadOnly = true;
             // 
             // previousTimeSpanDataGridViewTextBoxColumn
             // 
@@ -185,14 +183,12 @@
             this.previousTimeSpanDataGridViewTextBoxColumn.DividerWidth = 8;
             this.previousTimeSpanDataGridViewTextBoxColumn.HeaderText = "PreviousTimeSpan";
             this.previousTimeSpanDataGridViewTextBoxColumn.Name = "previousTimeSpanDataGridViewTextBoxColumn";
-            this.previousTimeSpanDataGridViewTextBoxColumn.ReadOnly = true;
             // 
             // keyDataGridViewTextBoxColumn
             // 
             this.keyDataGridViewTextBoxColumn.DataPropertyName = "key";
             this.keyDataGridViewTextBoxColumn.HeaderText = "key";
             this.keyDataGridViewTextBoxColumn.Name = "keyDataGridViewTextBoxColumn";
-            this.keyDataGridViewTextBoxColumn.ReadOnly = true;
             this.keyDataGridViewTextBoxColumn.Visible = false;
             // 
             // SavedTimersBindingSource

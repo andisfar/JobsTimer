@@ -63,8 +63,7 @@ namespace JobTimer
             finally
             {
                 timersDataGridView.DataSource = SavedTimersBindingSource;
-                SetupSavedTimers();
-
+                SetupSavedTimers();               
             }
             jobTimersIcon.Visible = false;
             _isClosing = true;
@@ -743,8 +742,6 @@ namespace JobTimer
 
         private void TimersDataGridView_RowHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e) => QueryStartOrStopTimer(sender, e);
 
-        private void TimersDataGridView_MouseClick(object sender, MouseEventArgs e) => QueryStartNewTimer(sender, e);
-
         private void BindingNavigatorDeleteItem_Click(object sender, EventArgs e)
         {
             TreadSafeDeleteDataGridViewRows();
@@ -783,6 +780,19 @@ namespace JobTimer
                 return;
             }
             timersDataGridView.Update();
+        }
+
+        private void timersDataGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
+        {
+            SingleTimerEditorForm editor = new SingleTimerEditorForm();
+            editor.QueryTimerNeeded += Editor_QueryTimerNeeded;
+            editor.Show();
+            e.Cancel = true;
+        }
+
+        private void Editor_QueryTimerNeeded(object sender, SingleTimerEditorFormTimerNeededEventArgs e)
+        {
+            e.Timer = ;
         }
     }
 
