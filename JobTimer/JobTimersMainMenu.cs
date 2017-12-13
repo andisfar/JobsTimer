@@ -143,7 +143,7 @@ namespace JobTimer
                 _t.StopTimer();
                 TimersList.Remove(_t.CanonicalName);
                 TimerName2RowIndexDictionary.Remove(_t.CanonicalName);
-                DebugPrint(string.Format("Timer {0} is being is about to be disposed!", _t.Name));
+                DebugPrint(string.Format("Timer {0} is about to be disposed!", _t.Name));
                 _t.Dispose();
             }
 
