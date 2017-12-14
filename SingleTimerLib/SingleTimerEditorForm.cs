@@ -6,6 +6,10 @@ namespace SingleTimerLib
 {
     public partial class SingleTimerEditorForm : Form
     {
+        int _rowIndex = -1;
+        int _columnIndex = -1;
+
+
         public delegate void TimerElapsedTimeChangedHandler(object sender, SingleTimerEditorFormElapsedTimeEventArgs e);
         public event TimerElapsedTimeChangedHandler TimerElapsedTimeChanged;
 
@@ -25,10 +29,15 @@ namespace SingleTimerLib
         private SingleTimerLib.SingleTimer _timer = null;
 
         public SingleTimerLib.SingleTimer Timer { get => _timer; set => _timer = value; }
+        public int RowIndex { get => _rowIndex; }
+        public int ColumnIndex { get => _columnIndex; }
 
-        public SingleTimerEditorForm()
+        public SingleTimerEditorForm(int rowIndex, int columnIndex)
         {
-            Timer = null;            
+            InitializeComponent();
+            Timer = null;
+            _rowIndex = rowIndex;
+            _columnIndex = columnIndex;
         }
 
         public delegate void SingleTimerEditorFormTimerNeeded(object sender, SingleTimerEditorFormTimerNeededEventArgs e);
@@ -85,7 +94,7 @@ namespace SingleTimerLib
 
         private void SingleTimerEditorForm_Load(object sender, EventArgs e)
         {
-            QueryRetrieveTimer(this, new SingleTimerEditorFormTimerNeededEventArgs());
+            QueryRetrieveTimer(this, new SingleTimerEditorFormTimerNeededEventArgs(RowIndex, ColumnIndex));
         }
 
         private void TimerNameLabel_Leave(object sender, EventArgs e)
@@ -136,11 +145,20 @@ namespace SingleTimerLib
     public class SingleTimerEditorFormTimerNeededEventArgs : EventArgs
     {
         private SingleTimer _t = null;
-
         public SingleTimer Timer { get => _t; set => _t = value; }
-        
-        public SingleTimerEditorFormTimerNeededEventArgs()
+
+        private int _rowIndex = -1;
+        public int RowIndex { get => _rowIndex; }
+
+        private int _columnIndex = -1;
+        public int ColumnIndex { get => _columnIndex; }
+
+
+
+        public SingleTimerEditorFormTimerNeededEventArgs(int rowIndex, int columnIndex)
         {
+            _rowIndex = rowIndex;
+            _columnIndex = columnIndex;
         }
     }
 

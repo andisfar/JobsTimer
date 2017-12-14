@@ -28,9 +28,6 @@ namespace SingleTimerLib
         private Int32 _rowIndex;
         public Int32 RowIndex { get { return _rowIndex; } }
 
-        private SingleTimerEditorForm _editor;
-        public SingleTimerEditorForm Editor { get => _editor; }
-
         private System.Timers.Timer heartBeat;
         private Stopwatch stopWatch;
 
@@ -74,8 +71,6 @@ namespace SingleTimerLib
             ElapsedTimeOffset = elapsedTimeOffset;
             IncrementTime();
             SetElapsedTimeLabel();
-            _editor = new SingleTimerEditorForm();
-            _editor.QueryTimerNeeded += SingleTimerEditorForm_QueryTimerNeeded;
         }
 
         private void SingleTimerEditorForm_QueryTimerNeeded(object sender, SingleTimerEditorFormTimerNeededEventArgs e)

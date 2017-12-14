@@ -165,7 +165,7 @@
             this.timersDataGridView.RowTemplate.Height = 31;
             this.timersDataGridView.Size = new System.Drawing.Size(428, 181);
             this.timersDataGridView.TabIndex = 2;
-            this.timersDataGridView.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.timersDataGridView_CellBeginEdit);
+            this.timersDataGridView.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.TimersDataGridView_CellBeginEdit);
             this.timersDataGridView.RowHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.TimersDataGridView_RowHeaderMouseClick);
             // 
             // timerNameDataGridViewTextBoxColumn

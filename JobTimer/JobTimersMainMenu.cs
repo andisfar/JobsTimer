@@ -634,22 +634,10 @@ namespace JobTimer
 
             Rows[hitTest.RowIndex].Selected = true;
 
-            //if (e.Button == MouseButtons.Right && hitTest.ColumnIndex == 1)
-            //{
-            //    QueryUserResetTimer(hitTest.RowIndex);
-            //    return;
-            //}
-
-            //if (e.Button == MouseButtons.Right && hitTest.ColumnIndex == 0)
-            //{
-            //    QueryUserRenameTimer(hitTest.RowIndex);
-            //    return;
-            //}
-
             if (hitTest.ColumnIndex >= 0)
             {
                 _t = TimersList[Rows[hitTest.RowIndex].TimerCanonicalName()];
-                SingleTimerEditorForm _f = _t.Editor;
+                SingleTimerEditorForm _f = new SingleTimerEditorForm(_t.RowIndex, 0);
                 _f.Show(this);
             }
         }
@@ -782,9 +770,9 @@ namespace JobTimer
             timersDataGridView.Update();
         }
 
-        private void timersDataGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
+        private void TimersDataGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
         {
-            SingleTimerEditorForm editor = new SingleTimerEditorForm();
+            SingleTimerEditorForm editor = new SingleTimerEditorForm(e.RowIndex,e.ColumnIndex);
             editor.QueryTimerNeeded += Editor_QueryTimerNeeded;
             editor.Show();
             e.Cancel = true;
@@ -792,7 +780,7 @@ namespace JobTimer
 
         private void Editor_QueryTimerNeeded(object sender, SingleTimerEditorFormTimerNeededEventArgs e)
         {
-            e.Timer = ;
+            e.Timer = TimersList[Rows[e.RowIndex].TimerCanonicalName()];
         }
     }
 
