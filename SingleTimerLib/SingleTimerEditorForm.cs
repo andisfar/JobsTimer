@@ -7,8 +7,6 @@ namespace SingleTimerLib
     public partial class SingleTimerEditorForm : Form
     {
         int _rowIndex = -1;
-        int _columnIndex = -1;
-
 
         public delegate void TimerElapsedTimeChangedHandler(object sender, SingleTimerEditorFormElapsedTimeEventArgs e);
         public event TimerElapsedTimeChangedHandler TimerElapsedTimeChanged;
@@ -30,14 +28,13 @@ namespace SingleTimerLib
 
         public SingleTimerLib.SingleTimer Timer { get => _timer; set => _timer = value; }
         public int RowIndex { get => _rowIndex; }
-        public int ColumnIndex { get => _columnIndex; }
 
-        public SingleTimerEditorForm(int rowIndex, int columnIndex)
+        public SingleTimerEditorForm(int rowIndex)
         {
             InitializeComponent();
             Timer = null;
             _rowIndex = rowIndex;
-            _columnIndex = columnIndex;
+            QueryRetrieveTimer(this, new SingleTimerEditorFormTimerNeededEventArgs(RowIndex, 0));
         }
 
         public delegate void SingleTimerEditorFormTimerNeeded(object sender, SingleTimerEditorFormTimerNeededEventArgs e);
@@ -47,7 +44,15 @@ namespace SingleTimerLib
         {
             QueryTimerNeeded?.Invoke(sender,e);
             Timer = e.Timer;
-            if(Timer != null) Timer.PropertyChanged += Timer_PropertyChanged;
+            if (Timer != null)
+            {
+                Timer.PropertyChanged += Timer_PropertyChanged;
+                RunTimerCheckBox.ImageKey = Timer.IsRunning ? "stop" : "play";
+                RunTimerCheckBox.Checked = Timer.IsRunning;
+                ThreadSafeUpdateOfTimerElapsedTime(Timer.RunningElapsedTime);
+                ThreadSafeUpdateTimerName(Timer.CanonicalName);
+            }
+            
         }
 
         private void Timer_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -94,15 +99,44 @@ namespace SingleTimerLib
 
         private void SingleTimerEditorForm_Load(object sender, EventArgs e)
         {
-            QueryRetrieveTimer(this, new SingleTimerEditorFormTimerNeededEventArgs(RowIndex, ColumnIndex));
+            QueryRetrieveTimer(this, new SingleTimerEditorFormTimerNeededEventArgs(RowIndex, 0));
         }
 
-        private void TimerNameLabel_Leave(object sender, EventArgs e)
+        private void AcceptButton_Click(object sender, EventArgs e)
         {
-            if(Timer?.CanonicalName != TimerNameLabel.Text)
+            DialogResult = DialogResult.OK;
+
+            if (Timer.CanonicalName != TimerNameLabel.Text)
             {
-                HandleTimerNameChanged(TimerNameLabel, new SingleTimerEditorFormNewNameEventArgs(Timer.RowIndex, TimerNameLabel.Text, Timer.CanonicalName));
+                HandleTimerNameChanged(sender: TimerNameLabel, e: new SingleTimerEditorFormNewNameEventArgs(RowIndex, TimerNameLabel.Text, _timer.CanonicalName));
             }
+
+            if (Timer.RunningElapsedTime != TimerElapsedTimeLabel.Text)
+            {
+                HandleTimerElapsedTimeChanged(sender: TimerElapsedTimeLabel, e: new SingleTimerEditorFormElapsedTimeEventArgs(RowIndex, TimerElapsedTimeLabel.Text));
+            }
+
+            this.Close();
+        }
+
+        private void rejectButton_Click(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.Cancel;
+            this.Close();
+        }
+
+        private void resetTimerbutton_Click(object sender, EventArgs e)
+        {
+            TimerElapsedTimeLabel.Text = "00:00:00";
+        }
+
+        private void RunTimerCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            RunTimerCheckBox.ImageKey = RunTimerCheckBox.Checked ? "stop" : "play";
+            if (RunTimerCheckBox.Checked)
+                Timer.StartTimer();
+            else
+                Timer.StopTimer();
         }
     }
 

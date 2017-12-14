@@ -134,7 +134,7 @@ namespace SingleTimerLib
 
         public string Name
         {
-            get { return TimerIsRunning ? _name + "*" : _name; }
+            get { return IsRunning ? _name + "*" : _name; }
             set { _name = value; OnPropertyChangedEventHandler(nameof(Name)); }
         }
 
@@ -143,7 +143,7 @@ namespace SingleTimerLib
             get { return string.Format("{0:00}:{1:00}:{2:00}", _running_hours, _running_minutes, _running_seconds); }
         }
 
-        public bool TimerIsRunning
+        public bool IsRunning
         {
             get { return stopWatch.IsRunning; }
         }
@@ -156,7 +156,7 @@ namespace SingleTimerLib
             _minutes_offset = 0;
             _seconds_offset = 0;
 
-            if (TimerIsRunning)
+            if (IsRunning)
             {
                 stopWatch.Restart();
             }
@@ -179,7 +179,7 @@ namespace SingleTimerLib
                 heartBeat.Enabled = false;
             }
             OnPropertyChangedEventHandler(nameof(RunningElapsedTime));
-            OnPropertyChangedEventHandler(nameof(TimerIsRunning));
+            OnPropertyChangedEventHandler(nameof(IsRunning));
         }
 
         public void StartTimer()
@@ -190,7 +190,7 @@ namespace SingleTimerLib
                 heartBeat.Enabled = true;
             }
             OnPropertyChangedEventHandler(nameof(RunningElapsedTime));
-            OnPropertyChangedEventHandler(nameof(TimerIsRunning));
+            OnPropertyChangedEventHandler(nameof(IsRunning));
         }
 
         protected virtual void Dispose(bool disposing)

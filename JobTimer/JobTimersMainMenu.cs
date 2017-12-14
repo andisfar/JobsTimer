@@ -319,14 +319,14 @@ namespace JobTimer
                 case nameof(SingleTimerLib.SingleTimer.Name):
                     DebugPrint(string.Format("{0} is a new name!", _t.Name));
                     Debug.Assert(TimerName2RowIndexDictionary.ContainsKey(_t.CanonicalName));
-                    TimersList.Add(_t.CanonicalName, _t);
-                    ThreadSafeUpdateTimerNamee(_t);
+                    TimersList.AddTimer(_t.CanonicalName, _t);
+                    ThreadSafeUpdateTimerName(_t);
                     break;
 
-                case nameof(SingleTimerLib.SingleTimer.TimerIsRunning):
+                case nameof(SingleTimerLib.SingleTimer.IsRunning):
                     string message1 = "{0}: {1} is running! [{2}]";
                     string message2 = "{0}: {1} is stopped! [{2}]";
-                    DebugPrint(string.Format(_t.TimerIsRunning ? message1 : message2, "SingleTimer_PropertyChanged", _t.Name, e.PropertyName));
+                    DebugPrint(string.Format(_t.IsRunning ? message1 : message2, "SingleTimer_PropertyChanged", _t.Name, e.PropertyName));
                     break;
 
                 default:
@@ -349,12 +349,12 @@ namespace JobTimer
             Rows[t.RowIndex].Cells[0].Value = t.Name;
         }
 
-        private void ThreadSafeUpdateTimerNamee(SingleTimer t)
+        private void ThreadSafeUpdateTimerName(SingleTimer t)
         {
             if (timersDataGridView.InvokeRequired)
             {
                 DebugPrint("[Rename Timer]=>Running on non GUI Thread=>calling method on GUI Thread!");
-                timersDataGridView.Invoke(new Action<SingleTimer>(ThreadSafeUpdateTimerNamee), t);
+                timersDataGridView.Invoke(new Action<SingleTimer>(ThreadSafeUpdateTimerName), t);
                 return;
             }
             DebugPrint("[Rename Timer]=>Running on GUI Thread!");           
@@ -449,7 +449,7 @@ namespace JobTimer
             Color _bc = Color.White;
             if (_t != null)
             {
-                if (_t.TimerIsRunning)
+                if (_t.IsRunning)
                 {
                     _fc = Color.NavajoWhite;
                     _bc = Color.LightSeaGreen;
@@ -462,8 +462,8 @@ namespace JobTimer
                     _t.StartTimer();
                     DebugPrint(string.Format("{0}: {1} is now running!", "ChildItem_CheckStateChanged", _t.Name));
                 }
-                menuItem.BackColor = _t.TimerIsRunning ? Color.LightSeaGreen : Color.LightPink;
-                menuItem.ForeColor = _t.TimerIsRunning ? Color.NavajoWhite : Color.MintCream;
+                menuItem.BackColor = _t.IsRunning ? Color.LightSeaGreen : Color.LightPink;
+                menuItem.ForeColor = _t.IsRunning ? Color.NavajoWhite : Color.MintCream;
                 Rows[_t.RowIndex].Cells[1].Style.BackColor = menuItem.BackColor;
                 Rows[_t.RowIndex].Cells[1].Style.ForeColor = menuItem.ForeColor;
             }
@@ -511,14 +511,14 @@ namespace JobTimer
         private void SetupChildItem(SingleTimerLib.SingleTimer _t, ToolStripMenuItem childItem)
         {
             childItem.CheckOnClick = true;
-            childItem.Checked = _t.TimerIsRunning;
+            childItem.Checked = _t.IsRunning;
             childItem.Image = new Bitmap(_imageStream);
             childItem.MouseEnter += ChildItem_MouseEnter;
             childItem.MouseDown += ChildItem_MouseDown;
             childItem.MouseLeave += ChildItem_MouseLeave;
             childItem.CheckStateChanged += ChildItem_CheckStateChanged;
-            childItem.BackColor = _t.TimerIsRunning ? Color.LightSeaGreen : Color.LightPink;
-            childItem.ForeColor = _t.TimerIsRunning ? Color.NavajoWhite : Color.MintCream;
+            childItem.BackColor = _t.IsRunning ? Color.LightSeaGreen : Color.LightPink;
+            childItem.ForeColor = _t.IsRunning ? Color.NavajoWhite : Color.MintCream;
         }
 
         private void ChildItem_MouseDown(object sender, MouseEventArgs e)
@@ -541,8 +541,8 @@ namespace JobTimer
                 SingleTimerLib.SingleTimer _t = TimersList[shortName];
                 _t.ResetTimer();
                 ThreadSafeUpdateTimerElapsedTime(new SingleTimerLib.SingleTimerLibEventArgs(_t.RunningElapsedTime, _t.Name, _t.RowIndex, 0));
-                childItem.BackColor = _t.TimerIsRunning ? Color.LightSeaGreen : Color.LightPink;
-                childItem.ForeColor = _t.TimerIsRunning ? Color.NavajoWhite : Color.MintCream;
+                childItem.BackColor = _t.IsRunning ? Color.LightSeaGreen : Color.LightPink;
+                childItem.ForeColor = _t.IsRunning ? Color.NavajoWhite : Color.MintCream;
             }
         }
 
@@ -608,8 +608,8 @@ namespace JobTimer
                 SingleTimerLib.SingleTimer _t = TimersList[name];
                 if (_t != null)
                 {
-                    item.BackColor = _t.TimerIsRunning ? Color.LightSeaGreen : Color.LightPink;
-                    item.ForeColor = _t.TimerIsRunning ? Color.NavajoWhite : Color.MintCream;
+                    item.BackColor = _t.IsRunning ? Color.LightSeaGreen : Color.LightPink;
+                    item.ForeColor = _t.IsRunning ? Color.NavajoWhite : Color.MintCream;
                 }
                 else
                 {
@@ -632,14 +632,7 @@ namespace JobTimer
                 return;
             }
 
-            Rows[hitTest.RowIndex].Selected = true;
-
-            if (hitTest.ColumnIndex >= 0)
-            {
-                _t = TimersList[Rows[hitTest.RowIndex].TimerCanonicalName()];
-                SingleTimerEditorForm _f = new SingleTimerEditorForm(_t.RowIndex, 0);
-                _f.Show(this);
-            }
+            Rows[hitTest.RowIndex].Selected = true;           
         }
 
         private void QueryUserRenameTimer(int rowIndex)
@@ -705,14 +698,14 @@ namespace JobTimer
                 DataGridViewRow _r = (DataGridViewRow)Rows[e.RowIndex];
                 string name = _r.TimerCanonicalName();
 
-                if (TimersList[name].TimerIsRunning)
+                if (TimersList[name].IsRunning)
                 {
                     TimersList[name].StopTimer();
                     DebugPrint(string.Format("{0}: {1} is no longer running!", "timersDataGridView_RowHeaderMouseClick", name));
                     return;
                 }
 
-                if (!TimersList[name].TimerIsRunning)
+                if (!TimersList[name].IsRunning)
                 {
                     TimersList[name].StartTimer();
                     DebugPrint(string.Format("{0}: {1} is now running!", "timersDataGridView_RowHeaderMouseClick", name));
@@ -772,10 +765,42 @@ namespace JobTimer
 
         private void TimersDataGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
         {
-            SingleTimerEditorForm editor = new SingleTimerEditorForm(e.RowIndex,e.ColumnIndex);
+            SingleTimerEditorForm editor = new SingleTimerEditorForm(e.RowIndex);
             editor.QueryTimerNeeded += Editor_QueryTimerNeeded;
-            editor.Show();
+            editor.TimerNameChanged += Editor_TimerNameChanged;
+            editor.TimerElapsedTimeChanged += Editor_TimerElapsedTimeChanged;
+            editor.ShowDialog(this);
             e.Cancel = true;
+        }
+
+        private void Editor_TimerElapsedTimeChanged(object sender, SingleTimerEditorFormElapsedTimeEventArgs e)
+        {
+            Rows[e.RowIndex].SetTimerElapsedTimeValue(e.TimerElapsedTimer);
+        }
+
+        private void Editor_TimerNameChanged(object sender, SingleTimerEditorFormNewNameEventArgs e)
+        {
+            Rows[e.RowIndex].SetTimerNameValue(e.TimerNewName);
+            ThreadSafeAutoUpdateTimerName(TimersList[e.TimerOldName], e);
+        }
+
+        private void ThreadSafeAutoUpdateTimerName(SingleTimer t, SingleTimerEditorFormNewNameEventArgs e)
+        {
+            if (t != null)
+            {
+                DebugPrint(string.Format("Timer being renamed: {0} => {1}", e.TimerOldName, e.TimerNewName));
+                TimerName2RowIndexDictionary.Remove(e.TimerOldName);
+                TimersList.Remove(e.TimerOldName);
+                TimerName2RowIndexDictionary.Add(e.TimerNewName, t.RowIndex);
+                t.ReNameTimer(e.TimerNewName);                
+                //TimersList.AddTimer(e.TimerNewName, t); this will be called in the PropertyChanged event for the timer
+            }
+            else
+            {
+                Rows.RemoveAt(e.RowIndex);
+                TimerName2RowIndexDictionary.Remove(e.TimerOldName);
+                TimersList.Remove(e.TimerOldName);
+            }
         }
 
         private void Editor_QueryTimerNeeded(object sender, SingleTimerEditorFormTimerNeededEventArgs e)
@@ -828,9 +853,14 @@ namespace JobTimer
             me.Rows[e.RowIndex].Cells[1].Value = e.ElapsedTime;
         }
 
-        public static void SetTimerElapsedTimeValue(this DataGridViewRow me, string ElapsedTime)
+        public static void SetTimerElapsedTimeValue(this DataGridViewRow me, string elapsedTime)
         {
-            me.Cells[0].Value = ElapsedTime;
+            me.Cells[1].Value = elapsedTime;
+        }
+
+        public static void SetTimerNameValue(this DataGridViewRow me, string name)
+        {
+            me.Cells[0].Value = name;
         }
 
         public static string TimerCanonicalName(this DataGridViewRow me) => me.Cells[0].EditedFormattedValue.ToString().Trim('*');

@@ -189,6 +189,7 @@
             this.keyDataGridViewTextBoxColumn.DataPropertyName = "key";
             this.keyDataGridViewTextBoxColumn.HeaderText = "key";
             this.keyDataGridViewTextBoxColumn.Name = "keyDataGridViewTextBoxColumn";
+            this.keyDataGridViewTextBoxColumn.ReadOnly = true;
             this.keyDataGridViewTextBoxColumn.Visible = false;
             // 
             // SavedTimersBindingSource
