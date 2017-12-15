@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using SingleTimerLib;
 
@@ -318,6 +319,11 @@ namespace JobTimer
 
                 case nameof(SingleTimerLib.SingleTimer.Name):
                     DebugPrint(string.Format("{0} is a new name!", _t.Name));
+                    string TimerOldName = Rows[_t.RowIndex].TimerCanonicalName();
+                    TimerName2RowIndexDictionary.Remove(TimerOldName);
+                    TimersList.Remove(TimerOldName);
+                    TimerName2RowIndexDictionary.Add(_t.CanonicalName, _t.RowIndex);
+                    ChangeMenuItemTitlesBasedOnTimerName(TimerOldName, _t.CanonicalName);
                     Debug.Assert(TimerName2RowIndexDictionary.ContainsKey(_t.CanonicalName));
                     TimersList.AddTimer(_t.CanonicalName, _t);
                     ThreadSafeUpdateTimerName(_t);
@@ -331,6 +337,19 @@ namespace JobTimer
 
                 default:
                     break;
+            }
+        }
+
+        private void ChangeMenuItemTitlesBasedOnTimerName(string timerOldName, string timerNewCanonicalName)
+        {       
+            foreach(ToolStripMenuItem childItem in activeTimersMenu.DropDownItems)
+            {
+                if(childItem.Text.StartsWith(timerOldName))
+                {
+                    childItem.Text = childItem.Text.Replace(timerOldName, timerNewCanonicalName);
+                    childItem.Tag = string.Format("{0}-[{1}]|{2}",timerNewCanonicalName,"{0}", TimerName2RowIndexDictionary[timerNewCanonicalName].ToString());
+                    break;
+                }
             }
         }
 
@@ -474,7 +493,7 @@ namespace JobTimer
             }
         }
 
-        private void DebugPrint(string message)
+        private void DebugPrint(string message, [CallerMemberName] string caller="")
         {
             string messageWithTimeStamp = string.Format("{0}:\t{1}", DateTime.Now.ToString("HH:mm:ss:fff"), message);
             Debug.Print(messageWithTimeStamp);
@@ -527,23 +546,25 @@ namespace JobTimer
             {
                 timersDataGridView.ClearSelection();
                 ToolStripMenuItem childItem = (ToolStripMenuItem)sender;
-                string shortName = childItem.Tag.ToString().SubStringByIndexOf("-[");
                 int rowIndex = childItem.Tag.ToString().SubStringAfterIndexOf('|').ToInt();
-                QueryUserResetTimer(childItem, shortName, rowIndex);
+                string shortName = Rows[rowIndex].TimerCanonicalName();
+                EditTimerFromNotificationMenu(childItem, shortName, rowIndex);
                 Rows[rowIndex].Selected = true;
             }
         }
 
-        private void QueryUserResetTimer(ToolStripMenuItem childItem, string shortName, int rowIndex)
+        private void EditTimerFromNotificationMenu(ToolStripMenuItem childItem, string shortName, int rowIndex)
         {
-            if (MessageBox.Show(this, string.Format("Reset Timer '{0}'", shortName), shortName, MessageBoxButtons.YesNo) == DialogResult.Yes)
-            {
-                SingleTimerLib.SingleTimer _t = TimersList[shortName];
-                _t.ResetTimer();
-                ThreadSafeUpdateTimerElapsedTime(new SingleTimerLib.SingleTimerLibEventArgs(_t.RunningElapsedTime, _t.Name, _t.RowIndex, 0));
-                childItem.BackColor = _t.IsRunning ? Color.LightSeaGreen : Color.LightPink;
-                childItem.ForeColor = _t.IsRunning ? Color.NavajoWhite : Color.MintCream;
-            }
+            timersDataGridView.CurrentCell = timersDataGridView[0, rowIndex];
+            timersDataGridView.BeginEdit(false);
+            //if (MessageBox.Show(this, string.Format("Reset Timer '{0}'", shortName), shortName, MessageBoxButtons.YesNo) == DialogResult.Yes)
+            //{
+            //    SingleTimerLib.SingleTimer _t = TimersList[shortName];
+            //    _t.ResetTimer();
+            //    ThreadSafeUpdateTimerElapsedTime(new SingleTimerLib.SingleTimerLibEventArgs(_t.RunningElapsedTime, _t.Name, _t.RowIndex, 0));
+            //    childItem.BackColor = _t.IsRunning ? Color.LightSeaGreen : Color.LightPink;
+            //    childItem.ForeColor = _t.IsRunning ? Color.NavajoWhite : Color.MintCream;
+            //}
         }
 
         private void QueryUserResetTimer(int rowIndex)
@@ -831,8 +852,7 @@ namespace JobTimer
         // returns the remainder of a string after the index of 'criteria', criteria is a  char
         public static string SubStringAfterIndexOf(this string me, char criteria)
         {
-            int pos = me.IndexOf(criteria);
-            return (pos + 1 <= me.Length) ? me.Substring(pos + 1) : string.Empty;
+            return me.Split(criteria)[1];
         }
 
         //  returns the remainder of a string after the index of 'criteria', criteria is a  string

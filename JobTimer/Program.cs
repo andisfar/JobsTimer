@@ -30,24 +30,24 @@ namespace JobTimer
             }
             else
             {
-                //Application.Run(JobTimerForm.GetInstance);
-                //mutex.ReleaseMutex();
-                try
-                {
-                    Application.Run(JobTimerForm.GetInstance);
-                }
-                catch (JobTimer.TimersFunctionNotImplemented jtEx)
-                {
-                    MessageBox.Show(jtEx.Message);
-                }
-                catch (Exception Ex)
-                {
-                    MessageBox.Show(Ex.Message);
-                }
-                finally
-                {
-                    mutex.ReleaseMutex();
-                }
+                Application.Run(JobTimerForm.GetInstance);
+                mutex.ReleaseMutex();
+                //try
+                //{
+                //    Application.Run(JobTimerForm.GetInstance);
+                //}
+                //catch (JobTimer.TimersFunctionNotImplemented jtEx)
+                //{
+                //    MessageBox.Show(jtEx.Message);
+                //}
+                //catch (Exception Ex)
+                //{
+                //    MessageBox.Show(Ex.Message);
+                //}
+                //finally
+                //{
+                //    mutex.ReleaseMutex();
+                //}
             }
         }
 

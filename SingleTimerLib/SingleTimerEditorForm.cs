@@ -108,12 +108,14 @@ namespace SingleTimerLib
 
             if (Timer.CanonicalName != TimerNameLabel.Text)
             {
-                HandleTimerNameChanged(sender: TimerNameLabel, e: new SingleTimerEditorFormNewNameEventArgs(RowIndex, TimerNameLabel.Text, _timer.CanonicalName));
+                Timer.ReNameTimer(TimerNameLabel.Text);
+                //HandleTimerNameChanged(sender: TimerNameLabel, e: new SingleTimerEditorFormNewNameEventArgs(RowIndex, TimerNameLabel.Text, _timer.CanonicalName));
             }
 
             if (Timer.RunningElapsedTime != TimerElapsedTimeLabel.Text)
             {
-                HandleTimerElapsedTimeChanged(sender: TimerElapsedTimeLabel, e: new SingleTimerEditorFormElapsedTimeEventArgs(RowIndex, TimerElapsedTimeLabel.Text));
+                Timer.ResetTimer();
+                //HandleTimerElapsedTimeChanged(sender: TimerElapsedTimeLabel, e: new SingleTimerEditorFormElapsedTimeEventArgs(RowIndex, TimerElapsedTimeLabel.Text));
             }
 
             this.Close();
