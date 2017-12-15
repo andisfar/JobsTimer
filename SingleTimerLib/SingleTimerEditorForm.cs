@@ -125,9 +125,9 @@ namespace SingleTimerLib
             this.Close();
         }
 
-        private void resetTimerbutton_Click(object sender, EventArgs e)
+        private void ResetTimerbutton_Click(object sender, EventArgs e)
         {
-            TimerElapsedTimeLabel.Text = "00:00:00";
+            Timer.ResetTimer();
         }
 
         private void RunTimerCheckBox_CheckedChanged(object sender, EventArgs e)

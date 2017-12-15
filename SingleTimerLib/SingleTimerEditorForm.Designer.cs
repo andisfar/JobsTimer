@@ -134,7 +134,7 @@
             this.resetTimerbutton.TabIndex = 4;
             this.resetTimerbutton.Text = "Reset Timer";
             this.resetTimerbutton.UseVisualStyleBackColor = true;
-            this.resetTimerbutton.Click += new System.EventHandler(this.resetTimerbutton_Click);
+            this.resetTimerbutton.Click += new System.EventHandler(this.ResetTimerbutton_Click);
             // 
             // RunTimerCheckBox
             // 
