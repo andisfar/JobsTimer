@@ -313,44 +313,49 @@ namespace JobTimer
                     ThreadSafeUpdateTimerElapsedTime(_t);                   
                     DebugPrint(string.Format("From {1}: [{2}] Elapsed {0}", _t.RunningElapsedTime, "SingleTimer_PropertyChanged", e.PropertyName));
                     break;
-
                 case nameof(SingleTimerLib.SingleTimer.RowIndex):
                     break;
-
                 case nameof(SingleTimerLib.SingleTimer.Name):
                     DebugPrint(string.Format("{0} is a new name!", _t.Name));
                     string TimerOldName = Rows[_t.RowIndex].TimerCanonicalName();
                     TimerName2RowIndexDictionary.Remove(TimerOldName);
                     TimersList.Remove(TimerOldName);
                     TimerName2RowIndexDictionary.Add(_t.CanonicalName, _t.RowIndex);
-                    ChangeMenuItemTitlesBasedOnTimerName(TimerOldName, _t.CanonicalName);
                     Debug.Assert(TimerName2RowIndexDictionary.ContainsKey(_t.CanonicalName));
                     TimersList.AddTimer(_t.CanonicalName, _t);
                     ThreadSafeUpdateTimerName(_t);
+                    ChangeMenuItemTitlesBasedOnTimerName(TimerOldName, _t.CanonicalName);                    
                     break;
-
                 case nameof(SingleTimerLib.SingleTimer.IsRunning):
                     string message1 = "{0}: {1} is running! [{2}]";
                     string message2 = "{0}: {1} is stopped! [{2}]";
                     DebugPrint(string.Format(_t.IsRunning ? message1 : message2, "SingleTimer_PropertyChanged", _t.Name, e.PropertyName));
                     break;
-
                 default:
                     break;
             }
         }
 
         private void ChangeMenuItemTitlesBasedOnTimerName(string timerOldName, string timerNewCanonicalName)
-        {       
-            foreach(ToolStripMenuItem childItem in activeTimersMenu.DropDownItems)
+        {
+            // first find the right childItem in the activeTimersMenu.DropDownItems
+            ToolStripItem[] childItems = activeTimersMenu.DropDownItems.FindItemThatStartsWith(timerOldName);
+
+            foreach (ToolStripMenuItem childItem in childItems)
             {
-                if(childItem.Text.StartsWith(timerOldName))
-                {
-                    childItem.Text = childItem.Text.Replace(timerOldName, timerNewCanonicalName);
-                    childItem.Tag = string.Format("{0}-[{1}]|{2}",timerNewCanonicalName,"{0}", TimerName2RowIndexDictionary[timerNewCanonicalName].ToString());
-                    break;
-                }
-            }
+                Image icon = childItem.Image;
+                RemoveChildMenuItem(childItem);
+                childItem.Dispose();
+                activeTimersMenu.DropDownItems.Add(AddDropDownItemsToActiveTimersMenu(TimersList[timerNewCanonicalName], icon));
+            }           
+        }
+
+        private void RemoveChildMenuItem(ToolStripMenuItem childItem)
+        {
+            ClearItemEvents(childItem);
+            string _name = childItem.Text.SubStringByIndexOf("-[");
+            currentItems.Remove(_name);
+            activeTimersMenu.DropDownItems.Remove(childItem);
         }
 
         private void ThreadSafeUpdateTimerElapsedTime(SingleTimerLibEventArgs e) => ThreadSafeUpdateTimerElapsedTime(TimersList[e.CanonicalName]);
@@ -445,14 +450,19 @@ namespace JobTimer
             jobTimersIcon.Visible = false;
             foreach (ToolStripMenuItem childItem in activeTimersMenu.DropDownItems)
             {
-                childItem.MouseEnter -= ChildItem_MouseEnter;
-                childItem.MouseDown -= ChildItem_MouseDown;
-                childItem.MouseLeave -= ChildItem_MouseLeave;
-                childItem.CheckStateChanged -= ChildItem_CheckStateChanged;
+                ClearItemEvents(childItem);
             }
             activeTimersMenu.DropDownItems.Clear();
             currentItems.Clear();
             Application.DoEvents();
+        }
+
+        private void ClearItemEvents(ToolStripMenuItem childItem)
+        {
+            childItem.MouseEnter -= ChildItem_MouseEnter;
+            childItem.MouseDown -= ChildItem_MouseDown;
+            childItem.MouseLeave -= ChildItem_MouseLeave;
+            childItem.CheckStateChanged -= ChildItem_CheckStateChanged;
         }
 
         private void QuitContextMenuItem_Click(object sender, EventArgs e)
@@ -517,14 +527,23 @@ namespace JobTimer
             foreach (SingleTimerLib.SingleTimer _t in TimersList.Values)
             {                
                 if (currentItems.Contains(_t.CanonicalName)) continue;
-                ToolStripMenuItem childItem = new ToolStripMenuItem(_t.CanonicalName, (Image.FromHbitmap(Icon.ToBitmap().GetHbitmap())));
-                currentItems.Add(_t.CanonicalName);
-                childItem.Tag = _t.CanonicalName + "-[{0}]|" + _t.RowIndex.ToString();
-                string _text = string.Format(childItem.Tag.ToString().SubStringByIndexOf("|"), _t.RunningElapsedTime);
-                childItem.Text = _text;
+                ToolStripMenuItem childItem = AddDropDownItemsToActiveTimersMenu(_t, Image.FromHbitmap(Icon.ToBitmap().GetHbitmap()));
                 activeTimersMenu.DropDownItems.Add(childItem);
                 SetupChildItem(_t, childItem);
             }
+        }
+
+        private ToolStripMenuItem AddDropDownItemsToActiveTimersMenu(SingleTimer _t, Image iconImage)
+        {
+            ToolStripMenuItem childItem = new ToolStripMenuItem(_t.CanonicalName, iconImage);
+            if (!currentItems.Contains(_t.CanonicalName))
+            {
+                currentItems.Add(_t.CanonicalName);
+                childItem.Tag = _t.CanonicalName + "-[{0}]|" + _t.RowIndex.ToString();
+                string _text = string.Format(childItem.Tag.ToString().SubStringByIndexOf("|"), _t.RunningElapsedTime);
+                childItem.Text = _text;             
+            }
+            return childItem;
         }
 
         private void SetupChildItem(SingleTimerLib.SingleTimer _t, ToolStripMenuItem childItem)
@@ -926,6 +945,17 @@ namespace JobTimer
                 }
                 currentIndex = Int32.Parse(me.PositionItem.Text);
             }
+        }
+
+        public static ToolStripMenuItem[] FindItemThatStartsWith(this ToolStripItemCollection me, string startsWith)
+        {
+            List<ToolStripMenuItem> startedWith = new List<ToolStripMenuItem>();
+            foreach(ToolStripMenuItem chldItem in me)
+            {
+                if(chldItem.Text.StartsWith(startsWith))
+                { startedWith.Add(chldItem); }
+            }
+            return startedWith.ToArray();
         }
     }
 }
