@@ -829,6 +829,7 @@ namespace JobTimer
 
         private void SynchronizeIndicies()
         {
+            DebugPrint(string.Format("Synchronizing Indexes!"));
             List<string> runningTimers = new List<string>();
             foreach(SingleTimer _t in TimersList.Values)
             {

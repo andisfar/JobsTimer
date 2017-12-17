@@ -201,7 +201,6 @@ namespace SingleTimerLib
                 //release any native resources here
             }
             StopTimer();
-            ResetTimer();
             heartBeat.Dispose();
         }
 
