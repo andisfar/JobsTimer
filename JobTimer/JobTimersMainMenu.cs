@@ -279,6 +279,10 @@ namespace JobTimer
                 if (timerName == "Cancel")
                 {
                     editor.Timer.Dispose();
+                    editor.Dispose();
+                    DebugPrint(string.Format("TimersList Count={0}", TimersList.Count));
+                    DebugPrint(string.Format("RowIndex Count={0}", TimerName2RowIndexDictionary.Count));
+                    DebugPrint(string.Format("Timers RowCount={0}", Timers.Rows.Count));
                     return null;
                 }
 
@@ -286,6 +290,7 @@ namespace JobTimer
                 try
                 {
                     _r = Timers.Rows.Add(timerName, "00:00:00");
+                    DebugPrint(string.Format("Database Row Added, RowCount={0}", Timers.Rows.Count));
                 }
                 catch (System.Data.ConstraintException ex)
                 {
@@ -304,7 +309,11 @@ namespace JobTimer
                 {
                     index = GetRowIndex(timerName);
                     Debug.Assert(index >= 0);
-                    TimerName2RowIndexDictionary.Add(index, timerName);
+                    if (!TimerName2RowIndexDictionary.ContainsValue(timerName) && !TimerName2RowIndexDictionary.ContainsKey(index))
+                    {
+                        TimerName2RowIndexDictionary.Add(index, timerName);
+                        DebugPrint(string.Format("TimerName and index added to Index Dictionary [{0},{1}]!", index, timerName));
+                    }
                 }
                 catch (ArgumentException ex)
                 {
@@ -314,7 +323,15 @@ namespace JobTimer
                     return null;
                 }
 
-                SingleTimerLib.SingleTimer st = TimersList.AddTimer(index, new SingleTimerLib.SingleTimer(index, timerName, "00:00:00"));
+                SingleTimerLib.SingleTimer st = null;
+                if (!TimersList.ContainsKey(index))
+                {
+                    st = TimersList.AddTimer(index, new SingleTimerLib.SingleTimer(index, timerName, "00:00:00"));
+                }
+                else
+                {
+                    st = TimersList[index];
+                }
 
                 st.TimerReset += SingleTimer_OnTimerReset;
                 st.PropertyChanged += SingleTimer_PropertyChanged;
@@ -846,7 +863,7 @@ namespace JobTimer
             TimerName2RowIndexDictionary.Clear();
             TimersList.Clear();
 
-            SetupSavedTimers(false);
+            if(Timers.Rows.Count > 0) SetupSavedTimers(false);
 
             foreach(string name in runningTimers)
             {
