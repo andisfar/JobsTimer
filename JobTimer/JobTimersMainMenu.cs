@@ -70,14 +70,16 @@ namespace JobTimer
             jobTimersIcon.Visible = false;
         }
 
-        private void SetupSavedTimers()
+        private void SetupSavedTimers(bool setDeleteHandler = true)
         {
             Application.DoEvents();
             timersDataGridView.Update();
-            for(int idx = 0; idx < Timers.Rows.Count; ++idx)
+
+            if(setDeleteHandler) Timers.RowDeleting += Timers_RowDeleting;
+
+            for (int idx = 0; idx < Timers.Rows.Count; ++idx)
             {
                 DataRow _r = Timers.Rows[idx];
-
                 if (!TimerName2RowIndexDictionary.Contains(_r[0].ToString()))
                 {
                     TimerName2RowIndexDictionary.Add(idx, _r[0].ToString());
@@ -276,16 +278,19 @@ namespace JobTimer
             if (sender == null) return;
             switch (e.PropertyName)
             {
-                case nameof(SingleTimerLib.SingleTimer.RunningElapsedTime):                    
+                case nameof(_t.RunningElapsedTime):                    
                     ThreadSafeUpdateTimerElapsedTime(_t.RowIndex);                   
                     DebugPrint(string.Format("From {1}: [{2}] Elapsed {0}", _t.RunningElapsedTime, "SingleTimer_PropertyChanged", e.PropertyName));
                     break;
-                case nameof(SingleTimerLib.SingleTimer.RowIndex):
+                case nameof(_t.RowIndex):
+                    DebugPrint(String.Format("Timer '{0}' has new row index: {1}", _t.CanonicalName, _t.RowIndex));
+                    TimerName2RowIndexDictionary.Add(_t.RowIndex, _t.CanonicalName);
+                    TimersList.AddTimer(_t.RowIndex, _t);
                     break;
-                case nameof(SingleTimerLib.SingleTimer.Name):
+                case nameof(_t.Name):
                     UpdateTimerName(_t);
                     break;
-                case nameof(SingleTimerLib.SingleTimer.IsRunning):
+                case nameof(_t.IsRunning):
                     string message1 = "{0}: {1} is running! [{2}]";
                     string message2 = "{0}: {1} is stopped! [{2}]";
                     DebugPrint(string.Format(_t.IsRunning ? message1 : message2, "SingleTimer_PropertyChanged", _t.Name, e.PropertyName));
@@ -333,7 +338,7 @@ namespace JobTimer
                 timersDataGridView.Invoke(new Action<int>(ThreadSafeUpdateTimerElapsedTime), rowIndex);
                 return;
             }
-            if (rowIndex > Rows.Count) return;
+            if (rowIndex == Rows.Count) return;
             DebugPrint("[Update Timer Elapsed Time]=>Running on GUI Thread!");
             SingleTimer t = TimersList[rowIndex];
             Rows[t.RowIndex].Cells[1].Value = t.RunningElapsedTime;
@@ -615,8 +620,6 @@ namespace JobTimer
             return StartNewTimer;
         }
 
-        private void TimersDataGridView_RowHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e) => QueryStartOrStopTimer(sender, e);
-
         private void BindingNavigatorDeleteItem_Click(object sender, EventArgs e)
         {
             TreadSafeDeleteDataGridViewRows();
@@ -682,12 +685,47 @@ namespace JobTimer
             e.Timer = TimersList[e.RowIndex];
         }
 
-        private void TimersDataGridView_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
+        private void Timers_RowDeleting(object sender, DataRowChangeEventArgs e)
         {
-            List<int> keys = new List<int>();
-            foreach(int key in TimerName2RowIndexDictionary.Keys)
+            int index = GetRowIndex(e.Row.TimerCanonicalName());
+            TimersList[index].StopTimer();
+            TimersList[index].Dispose();
+            TimersList.Remove(index);
+        }
+
+        private void timersDataGridView_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
+        {
+            Timers.AcceptChanges();
+            SynchronizeIndicies();
+        }
+
+        private void SynchronizeIndicies()
+        {
+            List<string> runningTimers = new List<string>();
+            foreach(SingleTimer _t in TimersList.Values)
             {
-                keys.Add(key);
+                if(_t.IsRunning)
+                {
+                    runningTimers.Add(_t.CanonicalName);
+                }
+                _t.StopTimer();
+                _t.Dispose();
+            }
+
+            TimerName2RowIndexDictionary.Clear();
+            TimersList.Clear();
+
+            SetupSavedTimers(false);
+
+            foreach(string name in runningTimers)
+            {
+                foreach (SingleTimer t in TimersList.Values)
+                {
+                    if(t.CanonicalName == name)
+                    {
+                        t.StartTimer();
+                    }
+                }
             }
         }
     }

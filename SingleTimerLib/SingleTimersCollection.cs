@@ -110,6 +110,7 @@ namespace SingleTimerLib
 
         public bool Remove(int key)
         {
+            timers[key].Dispose();
             return timers.Remove(key);
         }
 
