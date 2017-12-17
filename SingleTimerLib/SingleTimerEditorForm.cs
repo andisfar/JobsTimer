@@ -13,12 +13,15 @@ namespace SingleTimerLib
         public SingleTimerLib.SingleTimer Timer { get => _timer; set => _timer = value; }
         public int RowIndex { get => _rowIndex; }
 
-        public SingleTimerEditorForm(int rowIndex)
+        private bool _newTimerNeeded;
+
+        public SingleTimerEditorForm(int rowIndex, bool isNewRow = false)
         {
             InitializeComponent();
             Timer = null;
             _rowIndex = rowIndex;
-            QueryRetrieveTimer(this, new SingleTimerEditorFormTimerNeededEventArgs(RowIndex, 0));
+            _newTimerNeeded = isNewRow;
+            QueryRetrieveTimer(this, new SingleTimerEditorFormTimerNeededEventArgs(RowIndex,isNewRow));
         }
 
         public delegate void SingleTimerEditorFormTimerNeeded(object sender, SingleTimerEditorFormTimerNeededEventArgs e);
@@ -81,9 +84,10 @@ namespace SingleTimerLib
             Debug.Print(messageWithTimeStamp);
         }
 
+
         private void SingleTimerEditorForm_Load(object sender, EventArgs e)
         {
-            QueryRetrieveTimer(this, new SingleTimerEditorFormTimerNeededEventArgs(RowIndex, 0));
+            QueryRetrieveTimer(this, new SingleTimerEditorFormTimerNeededEventArgs(RowIndex,_newTimerNeeded));
         }
 
         private void AcceptButton_Click(object sender, EventArgs e)
@@ -100,12 +104,17 @@ namespace SingleTimerLib
                 Timer.ResetTimer();
             }
 
+            if (TimerNameLabel.Text == string.Empty)
+                Timer.Name = "Cancel";
+
             this.Close();
         }
 
         private void RejectButton_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
+            if (TimerNameLabel.Text == string.Empty)
+                Timer.Name = "Cancel";
             this.Close();
         }
 
@@ -129,18 +138,16 @@ namespace SingleTimerLib
         private SingleTimer _t = null;
         public SingleTimer Timer { get => _t; set => _t = value; }
 
+        private bool _needNewTimer = false;
+        public bool NewTimerNeeded { get => _needNewTimer;}
+
         private int _rowIndex = -1;
         public int RowIndex { get => _rowIndex; }
 
-        private int _columnIndex = -1;
-        public int ColumnIndex { get => _columnIndex; }
-
-
-
-        public SingleTimerEditorFormTimerNeededEventArgs(int rowIndex, int columnIndex)
+        public SingleTimerEditorFormTimerNeededEventArgs(int rowIndex, bool needsNewTimer = false)
         {
             _rowIndex = rowIndex;
-            _columnIndex = columnIndex;
+            _needNewTimer = needsNewTimer;
         }
     }
 

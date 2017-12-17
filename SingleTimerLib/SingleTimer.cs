@@ -149,6 +149,8 @@ namespace SingleTimerLib
 
         public string CanonicalName => Name.Trim('*');
 
+        public string MenuText { get => string.Format(CanonicalName + "-[{0}]",RunningElapsedTime); }
+
         public void ResetTimer()
         {
             _hours_offset = 0;
@@ -205,6 +207,7 @@ namespace SingleTimerLib
 
         public void Dispose()
         {
+            DebugPrint(string.Format("Timer '{0}' is being disposed!", CanonicalName));
             Dispose(true);
             GC.SuppressFinalize(this);
             return;
@@ -213,6 +216,12 @@ namespace SingleTimerLib
         public void ReNameTimer(string name)
         {
             Name = name; ;
+        }
+
+        private void DebugPrint(string message, [CallerMemberName] string caller = "")
+        {
+            string messageWithTimeStamp = string.Format("[{0}]\t{1} says {2}", DateTime.Now.ToString("HH:mm:ss:fff"), caller, message);
+            Debug.Print(messageWithTimeStamp);
         }
     }
 

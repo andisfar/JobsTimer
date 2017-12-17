@@ -19,7 +19,7 @@ namespace SingleTimerLib
         public SingleTimer this[int key]
         {
             get
-            {
+            {             
                 return timers[key];
             }
 
@@ -60,6 +60,9 @@ namespace SingleTimerLib
                 return timers.Values;
             }
         }
+
+        private bool _preserveTimers = false;
+        public bool PreserveTimers { get=>_preserveTimers; set => _preserveTimers = value; }
 
         public void Add(KeyValuePair<int, SingleTimer> item)
         {
