@@ -8,22 +8,6 @@ namespace SingleTimerLib
     {
         int _rowIndex = -1;
 
-        public delegate void TimerElapsedTimeChangedHandler(object sender, SingleTimerEditorFormElapsedTimeEventArgs e);
-        public event TimerElapsedTimeChangedHandler TimerElapsedTimeChanged;
-
-        public delegate void TimerNameChangedHandler(object sender, SingleTimerEditorFormNewNameEventArgs e);
-        public event TimerNameChangedHandler TimerNameChanged;
-
-        public void HandleTimerNameChanged(object sender, SingleTimerEditorFormNewNameEventArgs e)
-        {
-            TimerNameChanged?.Invoke(this, e);
-        }
-
-        public void HandleTimerElapsedTimeChanged(object sender, SingleTimerEditorFormElapsedTimeEventArgs e)
-        {
-            TimerElapsedTimeChanged?.Invoke(this, e);
-        }
-
         private SingleTimerLib.SingleTimer _timer = null;
 
         public SingleTimerLib.SingleTimer Timer { get => _timer; set => _timer = value; }
@@ -109,19 +93,17 @@ namespace SingleTimerLib
             if (Timer.CanonicalName != TimerNameLabel.Text)
             {
                 Timer.ReNameTimer(TimerNameLabel.Text);
-                //HandleTimerNameChanged(sender: TimerNameLabel, e: new SingleTimerEditorFormNewNameEventArgs(RowIndex, TimerNameLabel.Text, _timer.CanonicalName));
             }
 
             if (Timer.RunningElapsedTime != TimerElapsedTimeLabel.Text)
             {
                 Timer.ResetTimer();
-                //HandleTimerElapsedTimeChanged(sender: TimerElapsedTimeLabel, e: new SingleTimerEditorFormElapsedTimeEventArgs(RowIndex, TimerElapsedTimeLabel.Text));
             }
 
             this.Close();
         }
 
-        private void rejectButton_Click(object sender, EventArgs e)
+        private void RejectButton_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
             this.Close();
@@ -139,42 +121,6 @@ namespace SingleTimerLib
                 Timer.StartTimer();
             else
                 Timer.StopTimer();
-        }
-    }
-
-    public class SingleTimerEditorFormNewNameEventArgs : EventArgs
-    {
-        private int _rowIndex;
-        private string _timerNewName;
-        private string _timerOldName;
-
-        public int RowIndex { get => _rowIndex; }
-        public string TimerNewName { get => _timerNewName; }
-        public string TimerOldName { get => _timerOldName; }
-
-        public SingleTimerEditorFormNewNameEventArgs(int rowIndex, string timerNewName, string timerOldName)
-        {
-            _rowIndex = rowIndex;
-            _timerNewName = timerNewName;
-            _timerOldName = timerOldName;
-        }
-    }
-
-    public class SingleTimerEditorFormElapsedTimeEventArgs : EventArgs
-    {
-        private int _rowIndex;
-        private string _timerElapsedTimer;
-        private string _timerAlottedTime; // future use
-
-        public int RowIndex { get => _rowIndex; }
-        public string TimerElapsedTimer { get => _timerElapsedTimer; }
-        public string TimerAlottedTime { get => _timerAlottedTime; }
-
-        public SingleTimerEditorFormElapsedTimeEventArgs(int rowIndex, string timerElapsedTime, string timerAllotedTime = "00:00:00")
-        {
-            _rowIndex = rowIndex;
-            _timerElapsedTimer = timerElapsedTime;
-            _timerAlottedTime = timerAllotedTime;
         }
     }
 

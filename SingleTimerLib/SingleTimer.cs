@@ -26,21 +26,20 @@ namespace SingleTimerLib
         private long _seconds_offset = 0;
 
         private Int32 _rowIndex;
-        public Int32 RowIndex { get { return _rowIndex; } }
+        public Int32 RowIndex { get => _rowIndex; set { _rowIndex = value; OnPropertyChangedEventHandler(); } }
 
         private System.Timers.Timer heartBeat;
         private Stopwatch stopWatch;
 
         private void OnResetTimer()
         {
-            TimerReset?.Invoke(this, new SingleTimerLibEventArgs(RunningElapsedTime, CanonicalName, RowIndex, 0));
+            TimerReset?.Invoke(this, new SingleTimerLibEventArgs(this));
         }
 
         private void OnPropertyChangedEventHandler([CallerMemberName] string propertyName = "")
         {
-            Int32 ColIndex = (propertyName == nameof(RunningElapsedTime)) ? 0 : 1;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            SingleTimerChanged?.Invoke(this, new SingleTimerLibEventArgs(RunningElapsedTime, CanonicalName, RowIndex, ColIndex));
+            SingleTimerChanged?.Invoke(this, new SingleTimerLibEventArgs(this));
         }
 
         public SingleTimer(Int32 rowIndex, string name)
@@ -135,7 +134,7 @@ namespace SingleTimerLib
         public string Name
         {
             get { return IsRunning ? _name + "*" : _name; }
-            set { _name = value; OnPropertyChangedEventHandler(nameof(Name)); }
+            set { _name = value; OnPropertyChangedEventHandler(); }
         }
 
         public string RunningElapsedTime
@@ -219,22 +218,12 @@ namespace SingleTimerLib
 
     public class SingleTimerLibEventArgs : EventArgs
     {
-        private string _elapsedTime;
-        private string _name;
-        private Int32 _rowIndex;
-        private Int32 _colIndex;
+        private SingleTimer _t = null;
+        public SingleTimer Timer { get => _t; }
 
-        public string ElapsedTime { get { return _elapsedTime; } }
-        public string CanonicalName { get { return _name; } }
-        public Int32 RowIndex { get { return _rowIndex; } }
-        public Int32 ColumIndex { get { return _colIndex; } }
-
-        public SingleTimerLibEventArgs(string elapsedTime, string name, Int32 rowIndex, Int32 colIndex)
-        {
-            _elapsedTime = elapsedTime;
-            _name = name;
-            _rowIndex = rowIndex;
-            _colIndex = colIndex;
+        public SingleTimerLibEventArgs(SingleTimer t)
+        {           
+            _t = t;
         }
-    }
+    }    
 }

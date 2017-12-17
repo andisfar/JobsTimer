@@ -99,7 +99,7 @@
             this.rejectButton.TabIndex = 3;
             this.rejectButton.Text = "Cancel";
             this.rejectButton.UseVisualStyleBackColor = true;
-            this.rejectButton.Click += new System.EventHandler(this.rejectButton_Click);
+            this.rejectButton.Click += new System.EventHandler(this.RejectButton_Click);
             // 
             // TimerNameLabel
             // 

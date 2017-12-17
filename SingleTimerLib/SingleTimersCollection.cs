@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace SingleTimerLib
 {
-    public class SingleTimersCollection : IDictionary<string, SingleTimer>
+    public class SingleTimersCollection : IDictionary<int, SingleTimer>
     {
-        private Dictionary<string, SingleTimer> timers = new Dictionary<string, SingleTimer>();
+        private Dictionary<int, SingleTimer> timers = new Dictionary<int, SingleTimer>();
 
-        public Dictionary<string, SingleTimer> Timers
+        public Dictionary<int, SingleTimer> Timers
         {
             get { return timers; }
         }
 
-        public SingleTimer this[string key]
+        public SingleTimer this[int key]
         {
             get
             {
@@ -45,7 +45,7 @@ namespace SingleTimerLib
             }
         }
 
-        public ICollection<string> Keys
+        public ICollection<int> Keys
         {
             get
             {
@@ -61,18 +61,18 @@ namespace SingleTimerLib
             }
         }
 
-        public void Add(KeyValuePair<string, SingleTimer> item)
+        public void Add(KeyValuePair<int, SingleTimer> item)
         {
             Add(item.Key, item.Value);
         }
 
-        public SingleTimerLib.SingleTimer AddTimer(string key, SingleTimer value)
+        public SingleTimerLib.SingleTimer AddTimer(int key, SingleTimer value)
         {
             Add(key, value);
             return value;
         }
 
-        public void Add(string key, SingleTimer value)
+        public void Add(int key, SingleTimer value)
         {
             timers.Add(key, value);
         }
@@ -82,38 +82,38 @@ namespace SingleTimerLib
             timers.Clear();
         }
 
-        public bool Contains(KeyValuePair<string, SingleTimer> item)
+        public bool Contains(KeyValuePair<int, SingleTimer> item)
         {
             return timers.Contains(item);
         }
 
-        public bool ContainsKey(string key)
+        public bool ContainsKey(int key)
         {
             return timers.ContainsKey(key);
         }
 
-        public void CopyTo(KeyValuePair<string, SingleTimer>[] array, int arrayIndex)
+        public void CopyTo(KeyValuePair<int, SingleTimer>[] array, int arrayIndex)
         {
-            KeyValuePair<string, SingleTimer> item = (KeyValuePair<string, SingleTimer>)timers.ToArray()[arrayIndex];
+            KeyValuePair<int, SingleTimer> item = (KeyValuePair<int, SingleTimer>)timers.ToArray()[arrayIndex];
             array[arrayIndex] = item;
         }
 
-        public IEnumerator<KeyValuePair<string, SingleTimer>> GetEnumerator()
+        public IEnumerator<KeyValuePair<int, SingleTimer>> GetEnumerator()
         {
             return timers.GetEnumerator();
         }
 
-        public bool Remove(KeyValuePair<string, SingleTimer> item)
+        public bool Remove(KeyValuePair<int, SingleTimer> item)
         {
             return Remove(item.Key);
         }
 
-        public bool Remove(string key)
+        public bool Remove(int key)
         {
             return timers.Remove(key);
         }
 
-        public bool TryGetValue(string key, out SingleTimer value)
+        public bool TryGetValue(int key, out SingleTimer value)
         {
             return timers.TryGetValue(key, out value);
         }

@@ -167,6 +167,7 @@
             this.timersDataGridView.TabIndex = 2;
             this.timersDataGridView.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.TimersDataGridView_CellBeginEdit);
             this.timersDataGridView.RowHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.TimersDataGridView_RowHeaderMouseClick);
+            this.timersDataGridView.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.TimersDataGridView_RowsRemoved);
             // 
             // timerNameDataGridViewTextBoxColumn
             // 
@@ -224,6 +225,7 @@
             // 
             this.TimerName.Caption = "Timer Name";
             this.TimerName.ColumnName = "TimerName";
+            this.TimerName.DataType = typeof(object);
             this.TimerName.DefaultValue = "Timer";
             // 
             // PreviousTimeSpan
@@ -298,7 +300,6 @@
             this.newTimerToolStripMenuItem1.Name = "newTimerToolStripMenuItem1";
             this.newTimerToolStripMenuItem1.Size = new System.Drawing.Size(153, 34);
             this.newTimerToolStripMenuItem1.Text = "New Timer...";
-            this.newTimerToolStripMenuItem1.Click += new System.EventHandler(this.NewTimerToolStripMenuItem1_Click);
             // 
             // toolStripSeparator2
             // 
