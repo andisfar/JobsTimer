@@ -15,6 +15,9 @@ namespace SingleTimerLib
 
         public delegate void SingleTimerChangedHandler(object sender, SingleTimerLibEventArgs e);
 
+        public delegate void SingleTimerNameChanging(object sender, SingleTimerNameChangingEventArgs e, [CallerMemberName] string caller="");
+        public event SingleTimerNameChanging NameChanging;
+
         public event SingleTimerChangedHandler SingleTimerChanged;
 
         private long _running_hours = 0;
@@ -30,6 +33,11 @@ namespace SingleTimerLib
 
         private System.Timers.Timer heartBeat;
         private Stopwatch stopWatch;
+
+        private void OnNameChanging(object sender, SingleTimerNameChangingEventArgs e)
+        {
+            NameChanging?.Invoke(sender, e);
+        }
 
         private void OnResetTimer()
         {
@@ -134,7 +142,7 @@ namespace SingleTimerLib
         public string Name
         {
             get { return IsRunning ? _name + "*" : _name; }
-            set { _name = value; OnPropertyChangedEventHandler(); }
+            set { OnNameChanging(this, new SingleTimerNameChangingEventArgs(CanonicalName, value, this)); _name = value; OnPropertyChangedEventHandler(); }
         }
 
         public string RunningElapsedTime
@@ -221,6 +229,23 @@ namespace SingleTimerLib
         {
             string messageWithTimeStamp = string.Format("[{0}]\t{1} says {2}", DateTime.Now.ToString("HH:mm:ss:fff"), caller, message);
             Debug.Print(messageWithTimeStamp);
+        }
+    }
+
+    public class SingleTimerNameChangingEventArgs : EventArgs
+    {
+        private string _oldName = string.Empty;
+        private string _newName = string.Empty;
+
+        public string OldName { get => _oldName; }
+        public string NewName { get => _newName; }
+        public SingleTimer Timer { get; private set; }
+
+        public SingleTimerNameChangingEventArgs(string oldName, string newName, SingleTimer t, [CallerMemberName] string caller = "")
+        {
+            _oldName = oldName;
+            _newName = newName;
+            Timer = t;
         }
     }
 

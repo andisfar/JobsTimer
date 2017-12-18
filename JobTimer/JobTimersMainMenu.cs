@@ -37,7 +37,9 @@ namespace JobTimer
         private string DataFile { get; set; }
 
         private Dictionary<int,ToolStripMenuItem> _dropDownItems = null;
-        public Dictionary<int,ToolStripMenuItem> DropDownItems { get => _dropDownItems; }
+        //public Dictionary<int,ToolStripMenuItem> DropDownItems { get => _dropDownItems; }
+
+        private ToolStripDropDownMenu DropDownMenu = null;
 
         private SingleTimerLib.SingleTimersCollection _timers = null;
 
@@ -52,6 +54,8 @@ namespace JobTimer
 
             _timers = new SingleTimerLib.SingleTimersCollection();
             _dropDownItems = new Dictionary<int, ToolStripMenuItem>();
+
+            DropDownMenu = new ToolStripDropDownMenu();
 
             DataFile = Path.Combine(Environment.SpecialFolder.ApplicationData.ToString(), @"Data\SavedTimers.xml");
             if (!Directory.Exists(Path.Combine(Environment.SpecialFolder.ApplicationData.ToString(), @"Data")))
@@ -91,15 +95,31 @@ namespace JobTimer
                 {
                     TimerName2RowIndexDictionary.Add(idx, _r.TimerCanonicalName());
                 }
-                SingleTimerLib.SingleTimer _t = TimersList.AddTimer(idx, new SingleTimerLib.SingleTimer(idx, _r.TimerCanonicalName(), _r.TimerElapsedTime()));
+                if (TimersList.ContainsKey(idx))
+                {
+                    TimersList[idx] = new SingleTimerLib.SingleTimer(idx, _r.TimerCanonicalName(), _r.TimerElapsedTime());
+                }
+                else
+                {
+                    TimersList.AddTimer(idx, new SingleTimerLib.SingleTimer(idx, _r.TimerCanonicalName(), _r.TimerElapsedTime()));
+                }
+
+                SingleTimerLib.SingleTimer _t = TimersList[idx];
+
                 _t.PropertyChanged += SingleTimer_PropertyChanged;
                 _t.SingleTimerChanged += SingleTimer_SingleTimerChanged;
                 _t.TimerReset += SingleTimer_OnTimerReset;
+                _t.NameChanging += UpdateTimerName;
                 ToolStripMenuItem childMenuItem = new ToolStripMenuItem(_t.MenuText, Image.FromStream(_imageStream), DropDownMenuItem_Clicked, _t.CanonicalName);
                 childMenuItem.MouseDown += ChildMenuItem_MouseDown;
                 childMenuItem.Tag = _t.RowIndex;
                 UpDateColors(childMenuItem, _t.IsRunning);
-                DropDownItems.Add(_t.RowIndex,childMenuItem);
+                if(DropDownMenu.Items.ContainsKey(childMenuItem.Name))
+                {
+                    DropDownMenu.Items.RemoveAt(DropDownMenu.Items.IndexOfKey(childMenuItem.Name));                   
+                }
+
+                DropDownMenu.Items.Add(childMenuItem);
             }
         }
 
@@ -211,7 +231,7 @@ namespace JobTimer
             _t.StopTimer();
             TimersList.Remove(_t.RowIndex);
             TimerName2RowIndexDictionary.Remove(_t.RowIndex);
-            DropDownItems.Remove(_t.RowIndex);
+            DropDownMenu.Items.RemoveAt(DropDownMenu.Items.IndexOfKey(_t.CanonicalName));
             DebugPrint(string.Format("Timer {0} is about to be disposed!", _t.CanonicalName));
             _t.Dispose();
         }
@@ -233,12 +253,14 @@ namespace JobTimer
 
         private ToolStripMenuItem[] MakeArrayOf(Dictionary<int, ToolStripMenuItem>.ValueCollection values)
         {
-            List<ToolStripMenuItem> _list = new List<ToolStripMenuItem>(values.Count);           
+            List<ToolStripMenuItem> _list = new List<ToolStripMenuItem>(values.Count);
+            for (int i = 0; i < values.Count; ++i)
+                _list.Add(null);
+
             foreach(ToolStripMenuItem item in values)
             {
-                _list.Add(item);
+                _list[item.Tag.ToString().ToInt()] = item;
             }
-            _list.Reverse();
             return _list.ToArray();
         }
 
@@ -325,6 +347,7 @@ namespace JobTimer
 
         private int GetRowIndex(string timerName)
         {
+            Timers.AcceptChanges();
             foreach(DataRow dr in Timers.Rows)
             {
                 if (dr.TimerCanonicalName() == timerName)
@@ -355,7 +378,7 @@ namespace JobTimer
                     TimersList.AddTimer(_t.RowIndex, _t);
                     break;
                 case nameof(_t.Name):
-                    UpdateTimerName(_t);
+                    DebugPrint(string.Format("Timer name changed! '{0}'", _t.CanonicalName));
                     break;
                 case nameof(_t.IsRunning):
                     string message1 = "{0}: {1} is running! [{2}]";
@@ -374,36 +397,42 @@ namespace JobTimer
         /// <param name="caller">Decorated with the 'CallerMemberName' attribute, will contain the name
         /// of the calling method, or the name specified optionally.
         /// </param>
-        private void UpdateTimerName(SingleTimer _t, [CallerMemberName] string caller = "")
+        private void UpdateTimerName(object sender, SingleTimerNameChangingEventArgs e, [CallerMemberName] string caller = "")
         {
-            DebugPrint(string.Format("{0}: {1} is a new name!", caller, _t.Name));
-            string TimerOldName = string.Empty;
-            if (timersDataGridView.DataSource == null)
+            DebugPrint(string.Format("{0}: {1} is a new name!", caller, e.Timer.CanonicalName));
+            string TimerOldName = e.OldName;
+            // remove the old key and value
+            TimerName2RowIndexDictionary.Remove(e.Timer.RowIndex);
+            ToolStripMenuItem childItem = DropDownMenu.GetItemByKey(TimerOldName);
+            DropDownMenu.Remove(TimerOldName);
+            childItem.Name = e.Timer.CanonicalName;
+            childItem.Text = e.Timer.MenuText;
+            childItem.Tag = e.Timer.RowIndex;
+            UpDateColors(childItem, e.Timer.IsRunning);
+            DropDownMenu.Items.Add(childItem);
+            // remove timer with old name           
+            TimersList.Remove(e.Timer.RowIndex);
+            // add timer new name with index
+            if (TimerName2RowIndexDictionary.ContainsKey(e.Timer.RowIndex))
             {
-                TimerOldName = DropDownItems[_t.RowIndex].Name;
+                TimerName2RowIndexDictionary[e.Timer.RowIndex] = e.Timer.CanonicalName;
             }
             else
             {
-                TimerOldName = Rows[_t.RowIndex].TimerCanonicalName();
+                TimerName2RowIndexDictionary.Add(e.Timer.RowIndex, e.Timer.CanonicalName);
             }
-            // remove the old key and value
-            TimerName2RowIndexDictionary.Remove(_t.RowIndex);
-            ToolStripMenuItem childItem = DropDownItems[_t.RowIndex];
-            DropDownItems.Remove(_t.RowIndex);
-            childItem.Name = _t.CanonicalName;
-            childItem.Text = _t.MenuText;
-            childItem.Tag = _t.RowIndex;
-            UpDateColors(childItem, _t.IsRunning);
-            DropDownItems.Add(_t.RowIndex,childItem);
-            // remove timer with old name           
-            TimersList.Remove(_t.RowIndex);
-            // add timer new name with index
-            TimerName2RowIndexDictionary.Add(_t.RowIndex, _t.CanonicalName);
-            Debug.Assert(TimerName2RowIndexDictionary.Contains(_t.CanonicalName));
-            // add new timer name with updated value
-            TimersList.AddTimer(_t.RowIndex, _t);            
+            Debug.Assert(TimerName2RowIndexDictionary.Contains(e.Timer.CanonicalName));
+            if (TimersList.ContainsKey(e.Timer.RowIndex))
+            {
+                TimersList[e.Timer.RowIndex] = e.Timer;
+            }
+            else
+            {
+                // add new timer name with updated value
+                TimersList.AddTimer(e.Timer.RowIndex, e.Timer);
+            }
             // update datagridview row with new timer name
-            ThreadSafeUpdateTimerName(_t);
+            ThreadSafeUpdateTimerName(e.Timer);
         }
 
         private void ThreadSafeUpdateTimerElapsedTime(SingleTimerLibEventArgs e) => ThreadSafeUpdateTimerElapsedTime(e.Timer.RowIndex);
@@ -423,7 +452,7 @@ namespace JobTimer
             DebugPrint("=>Running on GUI Thread!");
             SingleTimer t = TimersList[rowIndex];
             DebugPrint("=>Update Timer Elapsed Time!");
-            DropDownItems[t.RowIndex].Text = t.MenuText;
+            DropDownMenu.GetItemByKey(t.CanonicalName).Text = t.MenuText;
             if(timersDataGridView.DataSource == null) // main window is not visible
             {
                 if (activeTimersMenu.DropDownItems.Count > 0)
@@ -433,9 +462,9 @@ namespace JobTimer
                 Application.DoEvents();
                 return;
             }
-            Rows[t.RowIndex].Cells[1].Value = t.RunningElapsedTime;
-            Rows[t.RowIndex].Cells[0].Value = t.Name;
-            Application.DoEvents();
+            if (timersDataGridView.DataSource == null) return;            
+            timersDataGridView.Rows[t.RowIndex].Cells[1].Value = t.RunningElapsedTime;
+            timersDataGridView.Rows[t.RowIndex].Cells[0].Value = t.Name;            
         }
 
         private void ThreadSafeUpdateTimerName(SingleTimer t)
@@ -627,7 +656,7 @@ namespace JobTimer
 
         private void ActiveTimersMenu_DropDownOpening(object sender, EventArgs e)
         {
-            activeTimersMenu.DropDownItems.AddRange(MakeArrayOf(DropDownItems.Values));
+            activeTimersMenu.DropDown = DropDownMenu;
             foreach(ToolStripMenuItem childMenuItem in activeTimersMenu.DropDownItems)
             {
                 UpDateColors(childMenuItem, TimersList[childMenuItem.Tag.ToString().ToInt()].IsRunning);
@@ -753,13 +782,13 @@ namespace JobTimer
                     _t.TimerReset -= SingleTimer_OnTimerReset;
                     _t.StopTimer();
                     Debug.Assert(_t.CanonicalName == Timers.Rows[_t.RowIndex].TimerCanonicalName());
-                    Timers.Rows.RemoveAt(_t.RowIndex);
-                    Timers.AcceptChanges();
-                    ThreadSafeUpdateDataGridView();
+                    Timers.Rows.RemoveAt(_t.RowIndex);                    
                     TimerName2RowIndexDictionary.Remove(_t.RowIndex);
                     TimersList.Remove(_t.RowIndex);                 
                 }
             }
+            Timers.AcceptChanges();
+            ThreadSafeUpdateDataGridView();
         }
 
         private void ThreadSafeUpdateDataGridView()
@@ -788,7 +817,14 @@ namespace JobTimer
 
             SingleTimerEditorForm editor = new SingleTimerEditorForm(e.RowIndex);
             editor.QueryTimerNeeded += Editor_QueryTimerNeeded;
-            editor.ShowDialog(this);
+            if(editor.ShowDialog(this)==DialogResult.OK)
+            {
+                Timers.Rows[editor.Timer.RowIndex][0] = editor.Timer.Name;
+                Timers.Rows[editor.Timer.RowIndex][1] = editor.Timer.RunningElapsedTime;
+                Timers.AcceptChanges();
+                ThreadSafeUpdateDataGridView();
+                SetupSavedTimers(false);
+            }
         }
 
         private void Editor_QueryTimerNeeded(object sender, SingleTimerEditorFormTimerNeededEventArgs e)
@@ -798,7 +834,18 @@ namespace JobTimer
                 e.Timer = new SingleTimer(e.RowIndex,string.Format("{0}","Cancel"));
                 return;
             }
-            e.Timer = TimersList[e.RowIndex];
+            try
+            {
+                e.Timer = TimersList[e.RowIndex];
+            }
+            catch (KeyNotFoundException)
+            {
+                timersDataGridView.Rows.RemoveAt(e.RowIndex);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
         }
 
         private void Timers_RowDeleting(object sender, DataRowChangeEventArgs e)
@@ -837,8 +884,8 @@ namespace JobTimer
                 {
                     runningTimers.Add(_t.CanonicalName);
                 }
-                DropDownItems[_t.RowIndex].Dispose();
-                DropDownItems.Remove(_t.RowIndex);
+                DropDownMenu.GetItemByKey(_t.CanonicalName).Dispose();
+                DropDownMenu.Remove(_t.CanonicalName);
                 ClearTimerEvents(_t.RowIndex);
                 _t.StopTimer();
                 _t.Dispose();
@@ -864,6 +911,10 @@ namespace JobTimer
         private void timersDataGridView_DataError_1(object sender, DataGridViewDataErrorEventArgs e)
         {
             DebugPrint(string.Format("Error reported from DataGridView Control:\nRow {0} Column{1}\nMessage:\n{2}", e.RowIndex, e.ColumnIndex, e.ThrowException.ToString()));
+        }
+
+        private void activeTimersMenu_DropDownClosed(object sender, EventArgs e)
+        {            
         }
     }
 
@@ -997,6 +1048,16 @@ namespace JobTimer
                     return true;
             }
             return false;
+        }
+
+        public static void Remove(this ToolStripDropDownMenu me, string key)
+        {
+            me.Items.RemoveByKey(key);
+        }
+
+        public static ToolStripMenuItem GetItemByKey(this ToolStripDropDownMenu me, string key)
+        {
+            return (ToolStripMenuItem)me.Items[me.Items.IndexOfKey(key)];
         }
     }
 }

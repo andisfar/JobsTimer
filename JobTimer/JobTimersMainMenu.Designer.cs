@@ -291,6 +291,7 @@
             this.activeTimersMenu.Name = "activeTimersMenu";
             this.activeTimersMenu.Size = new System.Drawing.Size(164, 34);
             this.activeTimersMenu.Text = "Timers";
+            this.activeTimersMenu.DropDownClosed += new System.EventHandler(this.activeTimersMenu_DropDownClosed);
             this.activeTimersMenu.DropDownOpening += new System.EventHandler(this.ActiveTimersMenu_DropDownOpening);
             // 
             // newTimerToolStripMenuItem1
