@@ -36,10 +36,7 @@ namespace JobTimer
 
         private string DataFile { get; set; }
 
-        private Dictionary<int,ToolStripMenuItem> _dropDownItems = null;
-        //public Dictionary<int,ToolStripMenuItem> DropDownItems { get => _dropDownItems; }
-
-        private ToolStripDropDownMenu DropDownMenu = null;
+        private ToolStripDropDownMenu _dropDownMenu = null;
 
         private SingleTimerLib.SingleTimersCollection _timers = null;
 
@@ -53,9 +50,7 @@ namespace JobTimer
             InitializeComponent();
 
             _timers = new SingleTimerLib.SingleTimersCollection();
-            _dropDownItems = new Dictionary<int, ToolStripMenuItem>();
-
-            DropDownMenu = new ToolStripDropDownMenu();
+            _dropDownMenu = new ToolStripDropDownMenu();
 
             DataFile = Path.Combine(Environment.SpecialFolder.ApplicationData.ToString(), @"Data\SavedTimers.xml");
             if (!Directory.Exists(Path.Combine(Environment.SpecialFolder.ApplicationData.ToString(), @"Data")))
@@ -73,113 +68,17 @@ namespace JobTimer
             }
             finally
             {
-                SetupSavedTimers();               
+//                SetupSavedTimers();               
             }
             jobTimersIcon.Visible = false;
         }
 
-        private void SetupSavedTimers(bool setDeleteHandler = true)
-        {
-            if (_isClosing) return;
-            _assembly = Assembly.GetExecutingAssembly();
-            _imageStream = _assembly.GetManifestResourceStream("JobTimer.appLogo.bmp");
-
-            timersDataGridView.Update();
-
-            if(setDeleteHandler) Timers.RowDeleting += Timers_RowDeleting;
-
-            for (int idx = 0; idx < Timers.Rows.Count; ++idx)
-            {
-                DataRow _r = Timers.Rows[idx];
-                if (!TimerName2RowIndexDictionary.Contains(_r[0].ToString()))
-                {
-                    TimerName2RowIndexDictionary.Add(idx, _r.TimerCanonicalName());
-                }
-                if (TimersList.ContainsKey(idx))
-                {
-                    TimersList[idx] = new SingleTimerLib.SingleTimer(idx, _r.TimerCanonicalName(), _r.TimerElapsedTime());
-                }
-                else
-                {
-                    TimersList.AddTimer(idx, new SingleTimerLib.SingleTimer(idx, _r.TimerCanonicalName(), _r.TimerElapsedTime()));
-                }
-
-                SingleTimerLib.SingleTimer _t = TimersList[idx];
-
-                _t.PropertyChanged += SingleTimer_PropertyChanged;
-                _t.SingleTimerChanged += SingleTimer_SingleTimerChanged;
-                _t.TimerReset += SingleTimer_OnTimerReset;
-                _t.NameChanging += UpdateTimerName;
-                ToolStripMenuItem childMenuItem = new ToolStripMenuItem(_t.MenuText, Image.FromStream(_imageStream), DropDownMenuItem_Clicked, _t.CanonicalName);
-                childMenuItem.MouseDown += ChildMenuItem_MouseDown;
-                childMenuItem.Tag = _t.RowIndex;
-                UpDateColors(childMenuItem, _t.IsRunning);
-                if(DropDownMenu.Items.ContainsKey(childMenuItem.Name))
-                {
-                    DropDownMenu.Items.RemoveAt(DropDownMenu.Items.IndexOfKey(childMenuItem.Name));                   
-                }
-
-                DropDownMenu.Items.Add(childMenuItem);
-            }
-        }
-
-        private void ChildMenuItem_MouseDown(object sender, MouseEventArgs e)
-        {
-            if(e.Button == MouseButtons.Right)
-            {
-                ThreadSafeBeginEdit(new DataGridViewCellCancelEventArgs(0, GetRowIndex(((ToolStripMenuItem)sender).Name)));
-            }           
-        }
-
-        private void UpDateColors(ToolStripMenuItem childMenuItem, bool isRunning)
-        {
-            childMenuItem.ForeColor = GetForeGroundColor(isRunning);
-            childMenuItem.BackColor = GetBackGroundColor(isRunning);
-        }
-
-        private static Color GetForeGroundColor(bool isRunning)
-        {
-            return isRunning ? SystemColors.ActiveCaptionText : SystemColors.InactiveCaptionText;
-        }
-
-        private static Color GetBackGroundColor(bool isRunning)
-        {
-            return isRunning ? SystemColors.ActiveBorder : SystemColors.InactiveBorder;
-        }
-
-        private void DropDownMenuItem_Clicked(object sender, EventArgs e)
-        {
-            int index = GetRowIndex(((ToolStripMenuItem)sender).Name);
-            if(TimersList[index].IsRunning)
-            {
-                TimersList[index].StopTimer();
-            }
-            else
-            {
-                TimersList[index].StartTimer();
-            }
-            UpDateColors((ToolStripMenuItem)sender, TimersList[index].IsRunning);
-        }
         private DataTable GetSavedTimers()
         {
             Timers.ReadXml(DataFile);
             Timers.AcceptChanges();
             timersDataGridView.Update();
             return Timers;
-        }
-
-        private Dictionary<int, string> _timerName2RowIndexDictionary = new Dictionary<int, string>();
-
-        private Dictionary<int,string> TimerName2RowIndexDictionary
-        {
-            get
-            {
-                return _timerName2RowIndexDictionary;
-            }
-            set
-            {
-                _timerName2RowIndexDictionary = value;
-            }
         }
 
         private void QuitToolStripMenuItem_Click(object sender, EventArgs e) => DoClose();
@@ -207,7 +106,6 @@ namespace JobTimer
                 listOfKeys.Add(_k);
             foreach(int timerRow in listOfKeys)
             {
-                CleanUpTimer(timerRow);
             }
 
             WriteDataToXml();
@@ -220,20 +118,6 @@ namespace JobTimer
             FormClosing -= JobTimerForm_FormClosing;
             Close();
             Application.Exit();
-        }
-
-        private void CleanUpTimer(int rowIndex)
-        {
-            SingleTimerLib.SingleTimer _t = TimersList[rowIndex];
-            _t.PropertyChanged -= SingleTimer_PropertyChanged;
-            _t.SingleTimerChanged -= SingleTimer_SingleTimerChanged;
-            _t.TimerReset -= SingleTimer_OnTimerReset;
-            _t.StopTimer();
-            TimersList.Remove(_t.RowIndex);
-            TimerName2RowIndexDictionary.Remove(_t.RowIndex);
-            DropDownMenu.Items.RemoveAt(DropDownMenu.Items.IndexOfKey(_t.CanonicalName));
-            DebugPrint(string.Format("Timer {0} is about to be disposed!", _t.CanonicalName));
-            _t.Dispose();
         }
 
         private void JobTimerForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -249,19 +133,6 @@ namespace JobTimer
             Visible = false;
             jobTimersIcon.Icon = Icon;
             jobTimersIcon.Visible = true;
-        }
-
-        private ToolStripMenuItem[] MakeArrayOf(Dictionary<int, ToolStripMenuItem>.ValueCollection values)
-        {
-            List<ToolStripMenuItem> _list = new List<ToolStripMenuItem>(values.Count);
-            for (int i = 0; i < values.Count; ++i)
-                _list.Add(null);
-
-            foreach(ToolStripMenuItem item in values)
-            {
-                _list[item.Tag.ToString().ToInt()] = item;
-            }
-            return _list.ToArray();
         }
 
         private void WriteDataToXml()
@@ -284,252 +155,6 @@ namespace JobTimer
             Text += "-[Active]";
         }
 
-        private void NewTimerToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            SingleTimer _t = StartNewTimer;
-        }
-
-        private SingleTimer StartNewTimer
-        {
-            get
-            {
-                SingleTimerEditorForm editor = new SingleTimerEditorForm(timersDataGridView.NewRowIndex,true);
-                editor.QueryTimerNeeded += Editor_QueryTimerNeeded;
-                editor.ShowDialog(this);
-
-                string timerName = editor.Timer.Name;//GetTimerName("Enter name for new timer:","New Timer");
-                if (timerName == "Cancel")
-                {
-                    editor.Timer.Dispose();
-                    return null;
-                }
-
-                DataRow _r = null;
-                try
-                {
-                    _r = Timers.Rows.Add(timerName, "00:00:00");
-                }
-                catch (System.Data.ConstraintException ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-                catch(Exception ex)
-                {
-                    throw ex;
-                }
-
-                Timers.AcceptChanges();
-                timersDataGridView.Update();
-
-                int index = -1;
-                try
-                {
-                    index = GetRowIndex(timerName);
-                    Debug.Assert(index >= 0);
-                    TimerName2RowIndexDictionary.Add(index, timerName);
-                }
-                catch (ArgumentException ex)
-                {
-                    DebugPrint(ex.Message);
-                    DebugPrint("Name already exists!");
-                    DebugPrint("Removing row from database! No Duplicate timer names allowed!");
-                    return null;
-                }
-
-                SingleTimerLib.SingleTimer st = TimersList.AddTimer(index, new SingleTimerLib.SingleTimer(index, timerName, "00:00:00"));
-
-                st.TimerReset += SingleTimer_OnTimerReset;
-                st.PropertyChanged += SingleTimer_PropertyChanged;
-                st.SingleTimerChanged += SingleTimer_SingleTimerChanged;
-                return st;
-            }
-        }
-
-        private int GetRowIndex(string timerName)
-        {
-            Timers.AcceptChanges();
-            foreach(DataRow dr in Timers.Rows)
-            {
-                if (dr.TimerCanonicalName() == timerName)
-                    return Int32.Parse(dr["key"].ToString());
-            }
-            return -1;
-        }
-
-        private void SingleTimer_SingleTimerChanged(object sender, SingleTimerLib.SingleTimerLibEventArgs e)
-        {
-            ThreadSafeUpdateTimerElapsedTime(e);            
-            DebugPrint(string.Format("Name: {0}, Elapsed: {1}, RowIndex: {2}", e.Timer.CanonicalName, e.Timer.RunningElapsedTime, e.Timer.RowIndex));          
-        }
-
-        private void SingleTimer_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            SingleTimerLib.SingleTimer _t = (SingleTimerLib.SingleTimer)sender;
-            if (sender == null) return;
-            switch (e.PropertyName)
-            {
-                case nameof(_t.RunningElapsedTime):                    
-                    ThreadSafeUpdateTimerElapsedTime(_t.RowIndex);                   
-                    DebugPrint(string.Format("From {1}: [{2}] Elapsed {0}", _t.RunningElapsedTime, "SingleTimer_PropertyChanged", e.PropertyName));
-                    break;
-                case nameof(_t.RowIndex):
-                    DebugPrint(String.Format("Timer '{0}' has new row index: {1}", _t.CanonicalName, _t.RowIndex));
-                    TimerName2RowIndexDictionary.Add(_t.RowIndex, _t.CanonicalName);
-                    TimersList.AddTimer(_t.RowIndex, _t);
-                    break;
-                case nameof(_t.Name):
-                    DebugPrint(string.Format("Timer name changed! '{0}'", _t.CanonicalName));
-                    break;
-                case nameof(_t.IsRunning):
-                    string message1 = "{0}: {1} is running! [{2}]";
-                    string message2 = "{0}: {1} is stopped! [{2}]";
-                    DebugPrint(string.Format(_t.IsRunning ? message1 : message2, "SingleTimer_PropertyChanged", _t.Name, e.PropertyName));
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Updates the name of the timer.
-        /// </summary>
-        /// <param name="_t">The timer object to test.</param>
-        /// <param name="caller">Decorated with the 'CallerMemberName' attribute, will contain the name
-        /// of the calling method, or the name specified optionally.
-        /// </param>
-        private void UpdateTimerName(object sender, SingleTimerNameChangingEventArgs e, [CallerMemberName] string caller = "")
-        {
-            DebugPrint(string.Format("{0}: {1} is a new name!", caller, e.Timer.CanonicalName));
-            string TimerOldName = e.OldName;
-            // remove the old key and value
-            TimerName2RowIndexDictionary.Remove(e.Timer.RowIndex);
-            ToolStripMenuItem childItem = DropDownMenu.GetItemByKey(TimerOldName);
-            DropDownMenu.Remove(TimerOldName);
-            childItem.Name = e.Timer.CanonicalName;
-            childItem.Text = e.Timer.MenuText;
-            childItem.Tag = e.Timer.RowIndex;
-            UpDateColors(childItem, e.Timer.IsRunning);
-            DropDownMenu.Items.Add(childItem);
-            // remove timer with old name           
-            TimersList.Remove(e.Timer.RowIndex);
-            // add timer new name with index
-            if (TimerName2RowIndexDictionary.ContainsKey(e.Timer.RowIndex))
-            {
-                TimerName2RowIndexDictionary[e.Timer.RowIndex] = e.Timer.CanonicalName;
-            }
-            else
-            {
-                TimerName2RowIndexDictionary.Add(e.Timer.RowIndex, e.Timer.CanonicalName);
-            }
-            Debug.Assert(TimerName2RowIndexDictionary.Contains(e.Timer.CanonicalName));
-            if (TimersList.ContainsKey(e.Timer.RowIndex))
-            {
-                TimersList[e.Timer.RowIndex] = e.Timer;
-            }
-            else
-            {
-                // add new timer name with updated value
-                TimersList.AddTimer(e.Timer.RowIndex, e.Timer);
-            }
-            // update datagridview row with new timer name
-            ThreadSafeUpdateTimerName(e.Timer);
-        }
-
-        private void ThreadSafeUpdateTimerElapsedTime(SingleTimerLibEventArgs e) => ThreadSafeUpdateTimerElapsedTime(e.Timer.RowIndex);
-
-        /// <summary>
-        /// Thread safe method to update timer elapsed time.
-        /// </summary>
-        /// <param name="rowIndex">Index of the row.</param>
-        private void ThreadSafeUpdateTimerElapsedTime(int rowIndex)
-        {
-            if (timersDataGridView.InvokeRequired)
-            {
-                DebugPrint("[Update Timer Elapsed Time]=>Running on non GUI Thread=>calling method on GUI Thread!");
-                timersDataGridView.Invoke(new Action<int>(ThreadSafeUpdateTimerElapsedTime), rowIndex);
-                return;
-            }
-            DebugPrint("=>Running on GUI Thread!");
-            SingleTimer t = TimersList[rowIndex];
-            DebugPrint("=>Update Timer Elapsed Time!");
-            DropDownMenu.GetItemByKey(t.CanonicalName).Text = t.MenuText;
-            if(timersDataGridView.DataSource == null) // main window is not visible
-            {
-                if (activeTimersMenu.DropDownItems.Count > 0)
-                {
-                    activeTimersMenu.DropDownItems[t.RowIndex].Text = t.MenuText;
-                }
-                Application.DoEvents();
-                return;
-            }
-            if (timersDataGridView.DataSource == null) return;            
-            timersDataGridView.Rows[t.RowIndex].Cells[1].Value = t.RunningElapsedTime;
-            timersDataGridView.Rows[t.RowIndex].Cells[0].Value = t.Name;            
-        }
-
-        private void ThreadSafeUpdateTimerName(SingleTimer t)
-        {
-            if (timersDataGridView.InvokeRequired)
-            {
-                DebugPrint("[Rename Timer]=>Running on non GUI Thread=>calling method on GUI Thread!");
-                timersDataGridView.Invoke(new Action<SingleTimer>(ThreadSafeUpdateTimerName), t);
-                return;
-            }
-            DebugPrint("[Rename Timer]=>Running on GUI Thread!");
-            if (timersDataGridView.DataSource == null) return;
-            Rows[t.RowIndex].Cells[0].Value = t.Name;
-            Timers.AcceptChanges();
-        }
-
-        private void SingleTimer_OnTimerReset(object sender, SingleTimerLib.SingleTimerLibEventArgs e)
-        {
-            ThreadSafeUpdateTimerElapsedTime(e);
-            DebugPrint(string.Format("Name {0}, Elapsed {1}, RowIndex{2}", e.Timer.CanonicalName, e.Timer.RunningElapsedTime, e.Timer.RowIndex));
-        }
-
-        private string GetTimerName(string prompt = "Prompt", string title = "Title", string defaultName = "Cancel")
-        {
-            string input = Microsoft.VisualBasic.Interaction.InputBox(prompt, title, defaultName);
-            return (input == string.Empty) ? "Cancel" : input;
-        }
-
-        private DataGridViewRowCollection Rows => timersDataGridView.Rows;
-
-        private void TimersGridViewDeleteItem_Click(object sender, EventArgs e)
-        {
-            List<int> deleteables = new List<int>();
-            foreach (ListViewItem _i in timersDataGridView.SelectedRows)
-            {
-                deleteables.Add(_i.Index);
-            }
-
-            timersDataGridView.ClearSelection();
-
-            string message = "Confirm deletion of {0}";
-            string caption = Application.ProductName + "Delete {0}";
-
-            timersDataGridView.ClearSelection();
-            foreach (int index in deleteables)
-            {
-                Rows[index].Selected = true;
-                string timerName = Rows[index].TimerCanonicalName();
-
-                if (AnswerYesNo(string.Format(message, timerName), string.Format(caption, timerName)) == DialogResult.Yes)
-                {
-                    using (SingleTimerLib.SingleTimer _t = TimersList[index])
-                    {
-                        _t.PropertyChanged -= SingleTimer_PropertyChanged;
-                        _t.SingleTimerChanged -= SingleTimer_SingleTimerChanged;
-                        _t.TimerReset -= SingleTimer_OnTimerReset;
-                    }
-                    TimersList.Remove(index);
-                    timersDataGridView.Rows.RemoveAt(index);
-                }
-
-                timersDataGridView.ClearSelection();
-            }
-        }
-
         private static DialogResult AnswerYesNo(string message, string caption)
         {
             return MessageBox.Show(message, caption, MessageBoxButtons.YesNo);
@@ -544,37 +169,8 @@ namespace JobTimer
         {
             ShowInTaskbar = true;
             Visible = true;
-            timersDataGridView.DataSource = SavedTimersBindingSource;
-            timersDataGridView.Update();
             activeTimersMenu.DropDownItems.Clear();
             jobTimersIcon.Visible = false;
-            timersDataGridView.Update();
-        }
-
-        private void RemoveBlankRowsFromView()
-        {
-            DebugPrint(string.Format("Data Rows: {0}", Timers.Rows.Count));
-            DebugPrint(string.Format("DataGridView Rows {0}", Rows.Count));
-            if (Timers.Rows.Count != Rows.Count)
-            {
-                DebugPrint("----Remove Blank Rows");
-                List<int> toDelete = new List<int>();
-                foreach (DataGridViewRow r in Rows)
-                {
-                    if (r.Index >= Timers.Rows.Count)
-                        toDelete.Add(r.Index);
-                }
-
-                foreach (int idx in toDelete)
-                {
-                    Rows.Remove(Rows[idx]);
-                }
-
-                timersDataGridView.Update();
-                DebugPrint(string.Format("Data Rows: {0}", Timers.Rows.Count));
-                DebugPrint(string.Format("DataGridView Rows {0}", Rows.Count));
-            }
-
         }
 
         private void QuitContextMenuItem_Click(object sender, EventArgs e)
@@ -588,243 +184,12 @@ namespace JobTimer
             Debug.Print(messageWithTimeStamp);
         }
 
-        private void JobTimersContextMenu_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        private DialogResult ShowSingleTimerEditorForm(DataGridViewCellCancelEventArgs e, out SingleTimer t)
         {
-        }
-
-        private void EditTimerFromNotificationMenu(ToolStripMenuItem childItem, string shortName, int rowIndex)
-        {
-            timersDataGridView.CurrentCell = timersDataGridView[0, rowIndex];
-            timersDataGridView.BeginEdit(false);
-        }
-
-        private void QueryUserResetTimer(int rowIndex)
-        {
-            string name = Rows[rowIndex].TimerCanonicalName();
-            if (MessageBox.Show(this, string.Format("Reset Timer '{0}'", name), name, MessageBoxButtons.YesNo) == DialogResult.Yes)
-            {
-                using (SingleTimerLib.SingleTimer _t = TimersList[rowIndex])
-                {
-                    if (_t != null)
-                    {
-                        _t.ResetTimer();
-                    }
-                    else
-                    {
-                        ThreadSafeUpdateGridViewRowElapsedTimerValue(rowIndex, "00:00:00");
-                    }
-                }
-            }
-        }
-
-        private void ThreadSafeUpdateGridViewRowElapsedTimerValue(int rowIndex, string elapsedTime)
-        {
-            if(timersDataGridView.InvokeRequired)
-            {
-                timersDataGridView.Invoke(new Action<int,string>(ThreadSafeUpdateGridViewRowElapsedTimerValue),rowIndex,elapsedTime);
-                return;
-            }
-            Rows[rowIndex].SetTimerElapsedTimeValue(elapsedTime);
-        }
-
-        private void ResetTimerToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ThreadSafeResetSelectedTimers();
-        }
-
-        private void ThreadSafeResetSelectedTimers()
-        {
-            if(timersDataGridView.InvokeRequired)
-            {
-                timersDataGridView.Invoke(new Action(ThreadSafeResetSelectedTimers));
-                return;
-            }
-
-            if (timersDataGridView.SelectedRows.Count > 0)
-            {
-                foreach (DataGridViewRow dr in timersDataGridView.SelectedRows)
-                {
-                    string message = string.Format("Reset timer value for:\n'{0}'", dr.TimerCanonicalName());
-                    string caption = string.Format("{0}", "Reset Timer Value");
-                    if (AnswerYesNo(message, caption) == DialogResult.Yes)
-                    {
-                        dr.SetTimerElapsedTimeValue("00:00:00");
-                    }
-                }
-            }
-        }
-
-        private void ActiveTimersMenu_DropDownOpening(object sender, EventArgs e)
-        {
-            activeTimersMenu.DropDown = DropDownMenu;
-            foreach(ToolStripMenuItem childMenuItem in activeTimersMenu.DropDownItems)
-            {
-                UpDateColors(childMenuItem, TimersList[childMenuItem.Tag.ToString().ToInt()].IsRunning);
-            }
-        }
-
-        private void QueryStartNewTimer(object sender, MouseEventArgs e)
-        {
-            // update the selected row
-
-            DataGridView.HitTestInfo hitTest = timersDataGridView.HitTest(e.X, e.Y);
-            SingleTimer _t;
-
-            if (hitTest.RowIndex < 0)
-            {
-               _t  = StartNewTimer;
-                return;
-            }
-
-            Rows[hitTest.RowIndex].Selected = true;           
-        }
-
-        private void QueryUserRenameTimer(int rowIndex)
-        {
-            string oldname = Rows[rowIndex].TimerCanonicalName();
-            string newname = GetTimerName("Specify as new name:","Rename Timer", oldname);
-            if (newname == "Cancel") return;
-            if (newname == oldname) return;
-
-            using (SingleTimerLib.SingleTimer _t = TimersList[rowIndex])
-            {
-                if (_t != null)
-                {
-                    TimerName2RowIndexDictionary.Remove(rowIndex);
-                    TimersList.Remove(rowIndex);
-                    TimerName2RowIndexDictionary.Add(rowIndex, newname);
-                    _t.ReNameTimer(newname);
-                }
-                else
-                {
-                    Rows.RemoveAt(rowIndex);
-                    TimerName2RowIndexDictionary.Remove(rowIndex);
-                    TimersList.Remove(rowIndex);
-                }
-            }
-        }
-        
-        private void TimersDataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e) => DebugPrint(e.Exception.Message);
-
-        private void QueryStartOrStopTimer(object sender, DataGridViewCellMouseEventArgs e)
-        {
-            if (e.RowIndex < 0)
-            {
-                if (AnswerYesNo("Create new timer?", "New Timer Inquiry") == DialogResult.Yes)
-                {
-                    using (SingleTimer _t = StartNewTimer)
-                    {}
-                }
-            }
-            else
-            {
-                using (DataGridViewRow _r = (DataGridViewRow)Rows[e.RowIndex])
-                {
-                    string name = _r.TimerCanonicalName();
-
-                    if (TimersList[e.RowIndex].IsRunning)
-                    {
-                        TimersList[e.RowIndex].StopTimer();
-                        DebugPrint(string.Format("{0}: {1} is no longer running!", "timersDataGridView_RowHeaderMouseClick", name));
-                        return;
-                    }
-
-                    if (!TimersList[e.RowIndex].IsRunning)
-                    {
-                        TimersList[e.RowIndex].StartTimer();
-                        DebugPrint(string.Format("{0}: {1} is now running!", "timersDataGridView_RowHeaderMouseClick", name));
-                        return;
-                    }
-                }
-            }
-        }
-
-        private void BindingNavigatorAddNewItem_Click(object sender, EventArgs e)
-        {
-            AddNewTimer();
-        }
-
-        private void ThreadSafeAddNewTimer()
-        {
-            if(timersDataGridView.InvokeRequired)
-            {
-                timersDataGridView.Invoke(new Action(ThreadSafeAddNewTimer));
-                return;
-            }
-            AddNewTimer();
-        }
-
-        private SingleTimer AddNewTimer()
-        {
-            DebugPrint("bindingNavigatorAddNewItem_Click: Adding a Row to DataGridView!");           
-            return StartNewTimer;
-        }
-
-        private void BindingNavigatorDeleteItem_Click(object sender, EventArgs e)
-        {
-            TreadSafeDeleteDataGridViewRows();
-        }
-
-        private void TreadSafeDeleteDataGridViewRows()
-        {
-            if(timersDataGridView.InvokeRequired)
-            {
-                timersDataGridView.Invoke(new Action(TreadSafeDeleteDataGridViewRows));
-                return;
-            }
-            foreach (DataGridViewRow _dr in timersDataGridView.SelectedRows)
-            {
-                string name = _dr.TimerCanonicalName();
-                using (SingleTimerLib.SingleTimer _t = TimersList[_dr.Index])
-                {
-                    _t.SingleTimerChanged -= SingleTimer_SingleTimerChanged;
-                    _t.PropertyChanged -= SingleTimer_PropertyChanged;
-                    _t.TimerReset -= SingleTimer_OnTimerReset;
-                    _t.StopTimer();
-                    Debug.Assert(_t.CanonicalName == Timers.Rows[_t.RowIndex].TimerCanonicalName());
-                    Timers.Rows.RemoveAt(_t.RowIndex);                    
-                    TimerName2RowIndexDictionary.Remove(_t.RowIndex);
-                    TimersList.Remove(_t.RowIndex);                 
-                }
-            }
-            Timers.AcceptChanges();
-            ThreadSafeUpdateDataGridView();
-        }
-
-        private void ThreadSafeUpdateDataGridView()
-        {
-            if(timersDataGridView.InvokeRequired)
-            {
-                timersDataGridView.Invoke(new Action(ThreadSafeUpdateDataGridView));
-                return;
-            }
-            timersDataGridView.Update();
-        }
-
-        private void TimersDataGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
-        {
-            ThreadSafeBeginEdit(e);
-            e.Cancel = true;
-        }
-
-        private void ThreadSafeBeginEdit(DataGridViewCellCancelEventArgs e)
-        {
-            if(timersDataGridView.InvokeRequired)
-            {
-                timersDataGridView.Invoke(new Action<DataGridViewCellCancelEventArgs>(ThreadSafeBeginEdit), e);
-                return;
-            }
-
             SingleTimerEditorForm editor = new SingleTimerEditorForm(e.RowIndex);
             editor.QueryTimerNeeded += Editor_QueryTimerNeeded;
-            if(editor.ShowDialog(this)==DialogResult.OK)
-            {
-                Timers.Rows[editor.Timer.RowIndex][0] = editor.Timer.Name;
-                Timers.Rows[editor.Timer.RowIndex][1] = editor.Timer.RunningElapsedTime;
-                Timers.AcceptChanges();
-                ThreadSafeUpdateDataGridView();
-                SetupSavedTimers(false);
-            }
+            t = editor.Timer;
+            return editor.ShowDialog(this);
         }
 
         private void Editor_QueryTimerNeeded(object sender, SingleTimerEditorFormTimerNeededEventArgs e)
@@ -849,73 +214,8 @@ namespace JobTimer
         }
 
         private void Timers_RowDeleting(object sender, DataRowChangeEventArgs e)
-        {
-            int index = GetRowIndex(e.Row.TimerCanonicalName());
-            DebugPrint(string.Format("Data Row being deleted: index = {0}", index));
-            if (!TimersList.PreserveTimers)
-            {
-                ClearTimerEvents(index);
-                TimersList[index].StopTimer();
-                TimersList[index].Dispose();
-                TimersList.Remove(index);
-            }
-        }
-
-        private void ClearTimerEvents(int rowIndex)
-        {
-            TimersList[rowIndex].PropertyChanged -= SingleTimer_PropertyChanged;
-            TimersList[rowIndex].SingleTimerChanged -= SingleTimer_SingleTimerChanged;
-            TimersList[rowIndex].TimerReset -= SingleTimer_OnTimerReset;
-        }
-
-        private void TimersDataGridView_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
-        {
-            Timers.AcceptChanges();
-            SynchronizeIndicies();
-        }
-
-        private void SynchronizeIndicies()
-        {
-            DebugPrint(string.Format("Synchronizing Indexes!"));
-            List<string> runningTimers = new List<string>();
-            foreach(SingleTimer _t in TimersList.Values)
-            {
-                if(_t.IsRunning)
-                {
-                    runningTimers.Add(_t.CanonicalName);
-                }
-                DropDownMenu.GetItemByKey(_t.CanonicalName).Dispose();
-                DropDownMenu.Remove(_t.CanonicalName);
-                ClearTimerEvents(_t.RowIndex);
-                _t.StopTimer();
-                _t.Dispose();
-            }
-
-            TimerName2RowIndexDictionary.Clear();
-            TimersList.Clear();
-
-            SetupSavedTimers(false);
-
-            foreach(string name in runningTimers)
-            {
-                foreach (SingleTimer t in TimersList.Values)
-                {
-                    if(t.CanonicalName == name)
-                    {
-                        t.StartTimer();
-                    }
-                }
-            }
-        }
-
-        private void timersDataGridView_DataError_1(object sender, DataGridViewDataErrorEventArgs e)
-        {
-            DebugPrint(string.Format("Error reported from DataGridView Control:\nRow {0} Column{1}\nMessage:\n{2}", e.RowIndex, e.ColumnIndex, e.ThrowException.ToString()));
-        }
-
-        private void activeTimersMenu_DropDownClosed(object sender, EventArgs e)
-        {            
-        }
+        {     
+        }              
     }
 
     [Serializable]
