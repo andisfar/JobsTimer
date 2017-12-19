@@ -34,8 +34,8 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.acceptButton = new System.Windows.Forms.Button();
             this.rejectButton = new System.Windows.Forms.Button();
-            this.TimerNameLabel = new System.Windows.Forms.TextBox();
-            this.TimerElapsedTimeLabel = new System.Windows.Forms.TextBox();
+            this.TimerNameTextBox = new System.Windows.Forms.TextBox();
+            this.TimerElapsedTimeTextBox = new System.Windows.Forms.TextBox();
             this.resetTimerbutton = new System.Windows.Forms.Button();
             this.RunTimerCheckBox = new System.Windows.Forms.CheckBox();
             this.stateImageList = new System.Windows.Forms.ImageList(this.components);
@@ -62,8 +62,8 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 84F));
             this.tableLayoutPanel1.Controls.Add(this.acceptButton, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.rejectButton, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.TimerNameLabel, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.TimerElapsedTimeLabel, 2, 0);
+            this.tableLayoutPanel1.Controls.Add(this.TimerNameTextBox, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.TimerElapsedTimeTextBox, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.resetTimerbutton, 3, 1);
             this.tableLayoutPanel1.Controls.Add(this.RunTimerCheckBox, 2, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -101,28 +101,30 @@
             this.rejectButton.UseVisualStyleBackColor = true;
             this.rejectButton.Click += new System.EventHandler(this.RejectButton_Click);
             // 
-            // TimerNameLabel
+            // TimerNameTextBox
             // 
-            this.tableLayoutPanel1.SetColumnSpan(this.TimerNameLabel, 2);
-            this.TimerNameLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TimerNameLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F);
-            this.TimerNameLabel.Location = new System.Drawing.Point(3, 3);
-            this.TimerNameLabel.Name = "TimerNameLabel";
-            this.TimerNameLabel.Size = new System.Drawing.Size(224, 29);
-            this.TimerNameLabel.TabIndex = 0;
-            this.TimerNameLabel.WordWrap = false;
+            this.tableLayoutPanel1.SetColumnSpan(this.TimerNameTextBox, 2);
+            this.TimerNameTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TimerNameTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F);
+            this.TimerNameTextBox.Location = new System.Drawing.Point(3, 3);
+            this.TimerNameTextBox.Name = "TimerNameTextBox";
+            this.TimerNameTextBox.Size = new System.Drawing.Size(224, 29);
+            this.TimerNameTextBox.TabIndex = 0;
+            this.TimerNameTextBox.WordWrap = false;
+            this.TimerNameTextBox.Validated += new System.EventHandler(this.TimerNameTextBox_Validated);
             // 
-            // TimerElapsedTimeLabel
+            // TimerElapsedTimeTextBox
             // 
-            this.tableLayoutPanel1.SetColumnSpan(this.TimerElapsedTimeLabel, 2);
-            this.TimerElapsedTimeLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TimerElapsedTimeLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TimerElapsedTimeLabel.Location = new System.Drawing.Point(233, 3);
-            this.TimerElapsedTimeLabel.Name = "TimerElapsedTimeLabel";
-            this.TimerElapsedTimeLabel.Size = new System.Drawing.Size(114, 29);
-            this.TimerElapsedTimeLabel.TabIndex = 1;
-            this.TimerElapsedTimeLabel.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.TimerElapsedTimeLabel.WordWrap = false;
+            this.tableLayoutPanel1.SetColumnSpan(this.TimerElapsedTimeTextBox, 2);
+            this.TimerElapsedTimeTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TimerElapsedTimeTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TimerElapsedTimeTextBox.Location = new System.Drawing.Point(233, 3);
+            this.TimerElapsedTimeTextBox.Name = "TimerElapsedTimeTextBox";
+            this.TimerElapsedTimeTextBox.Size = new System.Drawing.Size(114, 29);
+            this.TimerElapsedTimeTextBox.TabIndex = 1;
+            this.TimerElapsedTimeTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.TimerElapsedTimeTextBox.WordWrap = false;
+            this.TimerElapsedTimeTextBox.Validated += new System.EventHandler(this.TimerElapsedTimeTextBox_Validated);
             // 
             // resetTimerbutton
             // 
@@ -167,7 +169,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.CancelButton = this.rejectButton;
-            this.ClientSize = new System.Drawing.Size(330, 77);
+            this.ClientSize = new System.Drawing.Size(350, 120);
             this.Controls.Add(this.panel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -193,8 +195,8 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Button acceptButton;
         private System.Windows.Forms.Button rejectButton;
-        private System.Windows.Forms.TextBox TimerNameLabel;
-        private System.Windows.Forms.TextBox TimerElapsedTimeLabel;
+        private System.Windows.Forms.TextBox TimerNameTextBox;
+        private System.Windows.Forms.TextBox TimerElapsedTimeTextBox;
         private System.Windows.Forms.Button resetTimerbutton;
         private System.Windows.Forms.CheckBox RunTimerCheckBox;
         private System.Windows.Forms.ImageList stateImageList;

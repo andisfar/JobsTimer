@@ -163,6 +163,7 @@
             this.timersDataGridView.RowTemplate.Height = 31;
             this.timersDataGridView.Size = new System.Drawing.Size(428, 181);
             this.timersDataGridView.TabIndex = 2;
+            this.timersDataGridView.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.TimersDataGridView_CellBeginEdit);
             // 
             // timerNameDataGridViewTextBoxColumn
             // 
@@ -277,45 +278,45 @@
             this.QuitContextMenuSeparatorItem,
             this.QuitContextMenuItem});
             this.jobTimersContextMenu.Name = "fcmContextMenu";
-            this.jobTimersContextMenu.Size = new System.Drawing.Size(165, 174);
+            this.jobTimersContextMenu.Size = new System.Drawing.Size(154, 152);
             // 
             // activeTimersMenu
             // 
             this.activeTimersMenu.Image = ((System.Drawing.Image)(resources.GetObject("activeTimersMenu.Image")));
             this.activeTimersMenu.Name = "activeTimersMenu";
-            this.activeTimersMenu.Size = new System.Drawing.Size(164, 34);
+            this.activeTimersMenu.Size = new System.Drawing.Size(153, 34);
             this.activeTimersMenu.Text = "Timers";
             // 
             // newTimerToolStripMenuItem1
             // 
             this.newTimerToolStripMenuItem1.Image = ((System.Drawing.Image)(resources.GetObject("newTimerToolStripMenuItem1.Image")));
             this.newTimerToolStripMenuItem1.Name = "newTimerToolStripMenuItem1";
-            this.newTimerToolStripMenuItem1.Size = new System.Drawing.Size(164, 34);
+            this.newTimerToolStripMenuItem1.Size = new System.Drawing.Size(153, 34);
             this.newTimerToolStripMenuItem1.Text = "New Timer...";
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(161, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(150, 6);
             // 
             // RestoreToolStripMenuItem
             // 
             this.RestoreToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("RestoreToolStripMenuItem.Image")));
             this.RestoreToolStripMenuItem.Name = "RestoreToolStripMenuItem";
-            this.RestoreToolStripMenuItem.Size = new System.Drawing.Size(164, 34);
+            this.RestoreToolStripMenuItem.Size = new System.Drawing.Size(153, 34);
             this.RestoreToolStripMenuItem.Text = "Restore";
             this.RestoreToolStripMenuItem.Click += new System.EventHandler(this.RestoreToolStripMenuItem_Click);
             // 
             // QuitContextMenuSeparatorItem
             // 
             this.QuitContextMenuSeparatorItem.Name = "QuitContextMenuSeparatorItem";
-            this.QuitContextMenuSeparatorItem.Size = new System.Drawing.Size(161, 6);
+            this.QuitContextMenuSeparatorItem.Size = new System.Drawing.Size(150, 6);
             // 
             // QuitContextMenuItem
             // 
             this.QuitContextMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("QuitContextMenuItem.Image")));
             this.QuitContextMenuItem.Name = "QuitContextMenuItem";
-            this.QuitContextMenuItem.Size = new System.Drawing.Size(164, 34);
+            this.QuitContextMenuItem.Size = new System.Drawing.Size(153, 34);
             this.QuitContextMenuItem.Text = "Quit";
             this.QuitContextMenuItem.Click += new System.EventHandler(this.QuitContextMenuItem_Click);
             // 
