@@ -76,17 +76,38 @@ namespace JobTimer
 
         private void Timers_RowChanging(object sender, DataRowChangeEventArgs e)
         {
-            if (e.Row.RowState == DataRowState.Deleted) return;
+            switch (e.Row.RowState)
+            {
+                case DataRowState.Added:
+                    {
+                        AddTimerToTimersList(e.Row);
+                        AddTimerChildMenuItemToDropDownMenu(e.Row);
+                        break;
+                    }
+                case DataRowState.Modified:
+                    {
+                        TimersList[e.Row.TimerKey()].ReNameTimer(e.Row.TimerCanonicalName());
+                        break;
+                    }
+                default:
+                    break;
+            }
             DebugPrint(string.Format("Changing Row Data [{0},{1},{2}]", e.Row.TimerCanonicalName(), e.Row.TimerElapsedTime(), e.Row.TimerKey()));
-            AddTimerToTimersList(e.Row);
-            AddTimerChildMenuItemToDropDownMenu(e.Row);
         }
 
         private void AddTimerChildMenuItemToDropDownMenu(DataRow row)
         {
-            if (row.RowState == DataRowState.Deleted) return;
-            if (_dropDownMenu.Items.ContainsKey(row.TimerCanonicalName())) return;
-            _dropDownMenu.Items.Add(CreateChildMenuItem(TimersList[row.TimerKey()]));
+            switch (row.RowState)
+            {
+                case DataRowState.Added:
+                    {
+                        if (_dropDownMenu.Items.ContainsKey(row.TimerCanonicalName())) return;
+                        _dropDownMenu.Items.Add(CreateChildMenuItem(TimersList[row.TimerKey()]));
+                        break;
+                    }
+                default:
+                    break;
+            }
         }
 
         private void AddTimerToTimersList(DataRow row)
@@ -95,12 +116,14 @@ namespace JobTimer
             {
                 case DataRowState.Added:
                     {
-                        if (row.RowState == DataRowState.Deleted) return;
-                        SingleTimer _t = TimersList.AddTimer(row.TimerKey(), new SingleTimer(row.TimerKey(), row.TimerCanonicalName(), row.TimerElapsedTime()));
-                        DebugPrint(string.Format("Add Timer to Snchronized Timers List [{0}, {1}, {2}]", _t.CanonicalName, _t.RunningElapsedTime, _t.RowIndex));
-                        _t.NameChanging += OnTimer_NameChanging;
-                        _t.ElapsedTimeChanging += OnTimer_ElapsedTimeChanging;
-                        _t.TimerReset += OnTimer_TimerReset;
+                        if (!TimersList.ContainsKey(row.TimerKey()))
+                        {
+                            SingleTimer _t = TimersList.AddTimer(row.TimerKey(), new SingleTimer(row.TimerKey(), row.TimerCanonicalName(), row.TimerElapsedTime()));
+                            DebugPrint(string.Format("Add Timer to Snchronized Timers List [{0}, {1}, {2}]", _t.CanonicalName, _t.RunningElapsedTime, _t.RowIndex));
+                            _t.NameChanging += OnTimer_NameChanging;
+                            _t.ElapsedTimeChanging += OnTimer_ElapsedTimeChanging;
+                            _t.TimerReset += OnTimer_TimerReset;
+                        }
                         break;
                     }
                 default:
