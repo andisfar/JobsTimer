@@ -27,13 +27,18 @@ namespace SingleTimerLib
 
         private int StartIn { get; set; }
 
-        public SingleTimerEditorForm(DataGridViewCellCancelEventArgs e, bool isNewRow = false)
+        public SingleTimerEditorForm(DataGridViewCellCancelEventArgs e, bool isNewRow = false, SingleTimerEditorFormTimerNeeded QueryTimerNeededHandler = null)
         {
             InitializeComponent();
             Timer = null;
             _rowIndex = e.RowIndex;
             _newTimerNeeded = isNewRow;
-            StartIn = e.ColumnIndex;            
+            StartIn = e.ColumnIndex;
+            if(QueryTimerNeededHandler != null)
+            {
+                QueryTimerNeeded += QueryTimerNeededHandler;
+            }
+            QueryRetrieveTimer(this, new SingleTimerEditorFormTimerNeededEventArgs(e.RowIndex, _newTimerNeeded));
         }
 
         public delegate void SingleTimerEditorFormTimerNeeded(object sender, SingleTimerEditorFormTimerNeededEventArgs e);
@@ -99,8 +104,7 @@ namespace SingleTimerLib
 
 
         private void SingleTimerEditorForm_Load(object sender, EventArgs e)
-        {
-            QueryRetrieveTimer(this, new SingleTimerEditorFormTimerNeededEventArgs(RowIndex,_newTimerNeeded));
+        {            
             if(StartIn == 0)
             { ActiveControl = TimerNameTextBox; } else { ActiveControl = TimerElapsedTimeTextBox; }
         }
@@ -109,12 +113,12 @@ namespace SingleTimerLib
         {
             DialogResult = DialogResult.OK;
 
-            if (Timer.CanonicalName != TimerNameTextBox.Text)
+            if (editActions.Contains(EditActions.ChangeName))
             {
                 Timer.ReNameTimer(TimerNameTextBox.Text);
             }
 
-            if (Timer.RunningElapsedTime != TimerElapsedTimeTextBox.Text)
+            if (editActions.Contains(EditActions.ChangedElapsedTimer))
             {
                 Timer.SetElapsedTime(TimerElapsedTimeTextBox.Text);
             }
@@ -169,7 +173,7 @@ namespace SingleTimerLib
         {
             if(TimerNameTextBox.Text != Timer.CanonicalName)
             {
-                editActions.Add(EditActions.ChangeName);
+                if(!editActions.Contains(EditActions.ChangeName))editActions.Add(EditActions.ChangeName);
             }
         }
 
@@ -177,7 +181,7 @@ namespace SingleTimerLib
         {
             if(TimerElapsedTimeTextBox.Text != Timer.RunningElapsedTime)
             {
-                editActions.Add(EditActions.ChangedElapsedTimer);
+                if (!editActions.Contains(EditActions.ChangedElapsedTimer)) editActions.Add(EditActions.ChangedElapsedTimer);
             }
         }
     }

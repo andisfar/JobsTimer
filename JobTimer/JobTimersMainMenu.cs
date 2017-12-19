@@ -78,6 +78,34 @@ namespace JobTimer
         {
             if (e.Row.RowState == DataRowState.Deleted) return;
             DebugPrint(string.Format("Changing Row Data [{0},{1},{2}]", e.Row.TimerCanonicalName(), e.Row.TimerElapsedTime(), e.Row.TimerKey()));
+            AddTimerToTimersList(e.Row);
+            AddTimerChildMenuItemToDropDownMenu(e.Row);
+        }
+
+        private void AddTimerChildMenuItemToDropDownMenu(DataRow row)
+        {
+            if (row.RowState == DataRowState.Deleted) return;
+            if (_dropDownMenu.Items.ContainsKey(row.TimerCanonicalName())) return;
+            _dropDownMenu.Items.Add(CreateChildMenuItem(TimersList[row.TimerKey()]));
+        }
+
+        private void AddTimerToTimersList(DataRow row)
+        {
+            switch (row.RowState)
+            {
+                case DataRowState.Added:
+                    {
+                        if (row.RowState == DataRowState.Deleted) return;
+                        SingleTimer _t = TimersList.AddTimer(row.TimerKey(), new SingleTimer(row.TimerKey(), row.TimerCanonicalName(), row.TimerElapsedTime()));
+                        DebugPrint(string.Format("Add Timer to Snchronized Timers List [{0}, {1}, {2}]", _t.CanonicalName, _t.RunningElapsedTime, _t.RowIndex));
+                        _t.NameChanging += OnTimer_NameChanging;
+                        _t.ElapsedTimeChanging += OnTimer_ElapsedTimeChanging;
+                        _t.TimerReset += OnTimer_TimerReset;
+                        break;
+                    }
+                default:
+                    break;
+            }
         }
 
         private void Timers_TableNewRow(object sender, DataTableNewRowEventArgs e)
@@ -105,8 +133,7 @@ namespace JobTimer
         {
             foreach (DataRow _r in Timers.Rows)
             {
-                if (_r.RowState == DataRowState.Deleted) continue;
-                _dropDownMenu.Items.Add(CreateChildMenuItem(TimersList[_r.TimerKey()]));
+                AddTimerChildMenuItemToDropDownMenu(_r);
             }
 
             DebugPrint(string.Format("{0} Menu items created!", _dropDownMenu.Items.Count));
@@ -116,10 +143,12 @@ namespace JobTimer
         {
             Debug.Assert(t != null);
             Image img = activeTimersMenu.Image;
-            ToolStripMenuItem cMI = new ToolStripMenuItem(img);
-            cMI.Name = t.CanonicalName;
-            cMI.Text = t.MenuText;
-            cMI.Tag = t.RowIndex;
+            ToolStripMenuItem cMI = new ToolStripMenuItem(img)
+            {
+                Name = t.CanonicalName,
+                Text = t.MenuText,
+                Tag = t.RowIndex
+            };
             cMI.MouseDown += ChildMenuItem_MouseDown;
             return cMI;
         }
@@ -147,12 +176,7 @@ namespace JobTimer
         {
             foreach(DataRow _r in Timers.Rows)
             {
-                if (_r.RowState == DataRowState.Deleted) continue;
-                SingleTimer _t = TimersList.AddTimer(_r.TimerKey(), new SingleTimer(_r.TimerKey(), _r.TimerCanonicalName(), _r.TimerElapsedTime()));
-                DebugPrint(string.Format("Add Timer to Snchronized Timers List [{0}, {1}, {2}]", _t.CanonicalName, _t.RunningElapsedTime, _t.RowIndex));
-                _t.NameChanging += OnTimer_NameChanging;
-                _t.ElapsedTimeChanging += OnTimer_ElapsedTimeChanging;
-                _t.TimerReset += OnTimer_TimerReset;
+                AddTimerToTimersList(_r);
             }
         }
 
@@ -278,13 +302,13 @@ namespace JobTimer
             Debug.Print(messageWithTimeStamp);
         }
 
-        private DialogResult ShowSingleTimerEditorForm(DataGridViewCellCancelEventArgs e, out SingleTimer t)
+        private DialogResult ShowSingleTimerEditorForm(DataGridViewCellCancelEventArgs e, out SingleTimer t, bool needNewTimer = false)
         {
-            SingleTimerEditorForm editor = new SingleTimerEditorForm(e);
-            editor.QueryTimerNeeded += Editor_QueryTimerNeeded;
+            SingleTimerEditorForm editor = new SingleTimerEditorForm(e,needNewTimer,Editor_QueryTimerNeeded);
+            editor.QueryTimerNeeded += Editor_QueryTimerNeeded;            
             t = editor.Timer;
             return editor.ShowDialog(this);
-        }
+        }             
 
         private void Editor_QueryTimerNeeded(object sender, SingleTimerEditorFormTimerNeededEventArgs e)
         {
@@ -309,10 +333,9 @@ namespace JobTimer
 
         private void TimersDataGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
         {
-            SingleTimer _t = null;
             try
             {
-                if(ShowSingleTimerEditorForm(e, out _t) == DialogResult.OK)
+                if(ShowSingleTimerEditorForm(e, out SingleTimer _t) == DialogResult.OK)
                 {
                     Timers.AcceptChanges();
                 }
@@ -321,11 +344,7 @@ namespace JobTimer
                     Timers.RejectChanges();
                 }
 
-            }
-            catch (NullReferenceException)
-            {
-                if (_t != null) throw;
-            }
+            }            
             catch(Exception)
             {
                 throw;
@@ -333,6 +352,21 @@ namespace JobTimer
             finally
             {
                 e.Cancel = true;
+            }
+        }
+
+        private void BindingNavigatorAddNewItem_Click(object sender, EventArgs e)
+        {
+            int row = timersDataGridView.NewRowIndex;
+            if (ShowSingleTimerEditorForm(new DataGridViewCellCancelEventArgs(0, row), out SingleTimer _t, true) == DialogResult.OK)
+            {
+                if (_t != null)
+                {
+                    Timers.Rows.Add(_t.CanonicalName, _t.RunningElapsedTime);
+                    Timers.AcceptChanges();
+                    _t.Dispose();
+                }
+
             }
         }
     }
