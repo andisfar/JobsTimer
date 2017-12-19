@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -15,6 +16,12 @@ namespace SingleTimerLib
 
         public delegate void SingleTimerChangedHandler(object sender, SingleTimerLibEventArgs e);
 
+        public delegate void SingleTimerNameChanging(object sender, SingleTimerNameChangingEventArgs e, [CallerMemberName] string caller="");
+        public event SingleTimerNameChanging NameChanging;
+
+        public delegate void SingleTimerElapsedTimeChanging(object sender, SingleTimerElapsedTimeChangingEventArgs e, [CallerMemberName] string caller = "");
+        public event SingleTimerElapsedTimeChanging ElapsedTimeChanging;
+
         public event SingleTimerChangedHandler SingleTimerChanged;
 
         private long _running_hours = 0;
@@ -30,6 +37,16 @@ namespace SingleTimerLib
 
         private System.Timers.Timer heartBeat;
         private Stopwatch stopWatch;
+
+        public void OnElapsedTimeChanging(object sender, SingleTimerElapsedTimeChangingEventArgs e)
+        {
+            ElapsedTimeChanging?.Invoke(this, e);
+        }
+
+        private void OnNameChanging(object sender, SingleTimerNameChangingEventArgs e)
+        {
+            NameChanging?.Invoke(sender, e);
+        }
 
         private void OnResetTimer()
         {
@@ -118,6 +135,19 @@ namespace SingleTimerLib
             }
         }
 
+        internal string BlankTimerValue()
+        {            
+            return string.Format("{0}:{1}:{2}","00","00","00");
+        }
+
+        public void StartOrStop()
+        {
+            if (IsRunning)
+                StopTimer();
+            else
+                StartTimer();
+        }
+
         private void HeartBeat_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             HandleTimerElapsed();
@@ -134,7 +164,7 @@ namespace SingleTimerLib
         public string Name
         {
             get { return IsRunning ? _name + "*" : _name; }
-            set { _name = value; OnPropertyChangedEventHandler(); }
+            set { OnNameChanging(this, new SingleTimerNameChangingEventArgs(CanonicalName, value, this)); _name = value; OnPropertyChangedEventHandler(); }
         }
 
         public string RunningElapsedTime
@@ -150,6 +180,26 @@ namespace SingleTimerLib
         public string CanonicalName => Name.Trim('*');
 
         public string MenuText { get => string.Format(CanonicalName + "-[{0}]",RunningElapsedTime); }
+
+        public void SetElapsedTime(string runningElapsedTime)
+        {
+           TimeSpan newTime = new TimeSpan(ParseHours(runningElapsedTime)[0], ParseHours(runningElapsedTime)[1], ParseHours(runningElapsedTime)[2]);
+            _running_hours = newTime.Hours;
+            _running_minutes = newTime.Minutes;
+            _running_seconds = newTime.Seconds;
+            OnElapsedTimeChanging(this, new SingleTimerElapsedTimeChangingEventArgs(RunningElapsedTime, this));
+        }
+
+        private int[] ParseHours(string runningElapsedTime)
+        {
+            List<int> retInts = new List<int>();
+            retInts.Add(0); retInts.Add(0); retInts.Add(0);
+            string[] intStr = runningElapsedTime.Split(':');
+            retInts[0] = Int32.Parse(intStr[0]);
+            retInts[1] = Int32.Parse(intStr[1]);
+            retInts[2] = Int32.Parse(intStr[2]);
+            return retInts.ToArray();
+        }
 
         public void ResetTimer()
         {
@@ -179,6 +229,7 @@ namespace SingleTimerLib
                 stopWatch.Stop();
                 heartBeat.Enabled = false;
             }
+            DebugPrint(string.Format("'{0}' is now stopped!",CanonicalName));
             OnPropertyChangedEventHandler(nameof(RunningElapsedTime));
             OnPropertyChangedEventHandler(nameof(IsRunning));
         }
@@ -190,6 +241,7 @@ namespace SingleTimerLib
                 stopWatch.Start();
                 heartBeat.Enabled = true;
             }
+            DebugPrint(string.Format("'{0}' is now running!",CanonicalName));
             OnPropertyChangedEventHandler(nameof(RunningElapsedTime));
             OnPropertyChangedEventHandler(nameof(IsRunning));
         }
@@ -201,7 +253,6 @@ namespace SingleTimerLib
                 //release any native resources here
             }
             StopTimer();
-            ResetTimer();
             heartBeat.Dispose();
         }
 
@@ -222,6 +273,38 @@ namespace SingleTimerLib
         {
             string messageWithTimeStamp = string.Format("[{0}]\t{1} says {2}", DateTime.Now.ToString("HH:mm:ss:fff"), caller, message);
             Debug.Print(messageWithTimeStamp);
+        }
+    }
+
+    public class SingleTimerElapsedTimeChangingEventArgs : EventArgs
+    {
+        private SingleTimer _t = null;
+        public SingleTimer Timer { get => _t; }
+
+        private string _elapsedTime = string.Empty;
+        public string ElapsedTime { get => _elapsedTime; }
+
+        public SingleTimerElapsedTimeChangingEventArgs(string elapsedTime, SingleTimer t, [CallerMemberName] string caller = "")
+        {
+            _t = t;
+            _elapsedTime = elapsedTime;
+        }
+    }
+
+    public class SingleTimerNameChangingEventArgs : EventArgs
+    {
+        private string _oldName = string.Empty;
+        private string _newName = string.Empty;
+
+        public string OldName { get => _oldName; }
+        public string NewName { get => _newName; }
+        public SingleTimer Timer { get; private set; }
+
+        public SingleTimerNameChangingEventArgs(string oldName, string newName, SingleTimer t, [CallerMemberName] string caller = "")
+        {
+            _oldName = oldName;
+            _newName = newName;
+            Timer = t;
         }
     }
 

@@ -132,7 +132,6 @@
             this.newTimerToolStripMenuItem.Name = "newTimerToolStripMenuItem";
             this.newTimerToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
             this.newTimerToolStripMenuItem.Text = "New &Timer";
-            this.newTimerToolStripMenuItem.Click += new System.EventHandler(this.NewTimerToolStripMenuItem_Click);
             // 
             // panel1
             // 
@@ -165,8 +164,6 @@
             this.timersDataGridView.Size = new System.Drawing.Size(428, 181);
             this.timersDataGridView.TabIndex = 2;
             this.timersDataGridView.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.TimersDataGridView_CellBeginEdit);
-            this.timersDataGridView.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.timersDataGridView_DataError_1);
-            this.timersDataGridView.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.TimersDataGridView_RowsRemoved);
             // 
             // timerNameDataGridViewTextBoxColumn
             // 
@@ -261,7 +258,6 @@
             this.DeleteSelectedTimer.Name = "DeleteSelectedTimer";
             this.DeleteSelectedTimer.Size = new System.Drawing.Size(32, 32);
             this.DeleteSelectedTimer.Text = "Delete Selected Timer";
-            this.DeleteSelectedTimer.Click += new System.EventHandler(this.TimersGridViewDeleteItem_Click);
             // 
             // jobTimersIcon
             // 
@@ -282,47 +278,45 @@
             this.QuitContextMenuSeparatorItem,
             this.QuitContextMenuItem});
             this.jobTimersContextMenu.Name = "fcmContextMenu";
-            this.jobTimersContextMenu.Size = new System.Drawing.Size(165, 174);
-            this.jobTimersContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.JobTimersContextMenu_Opening);
+            this.jobTimersContextMenu.Size = new System.Drawing.Size(154, 152);
             // 
             // activeTimersMenu
             // 
             this.activeTimersMenu.Image = ((System.Drawing.Image)(resources.GetObject("activeTimersMenu.Image")));
             this.activeTimersMenu.Name = "activeTimersMenu";
-            this.activeTimersMenu.Size = new System.Drawing.Size(164, 34);
+            this.activeTimersMenu.Size = new System.Drawing.Size(153, 34);
             this.activeTimersMenu.Text = "Timers";
-            this.activeTimersMenu.DropDownOpening += new System.EventHandler(this.ActiveTimersMenu_DropDownOpening);
             // 
             // newTimerToolStripMenuItem1
             // 
             this.newTimerToolStripMenuItem1.Image = ((System.Drawing.Image)(resources.GetObject("newTimerToolStripMenuItem1.Image")));
             this.newTimerToolStripMenuItem1.Name = "newTimerToolStripMenuItem1";
-            this.newTimerToolStripMenuItem1.Size = new System.Drawing.Size(164, 34);
+            this.newTimerToolStripMenuItem1.Size = new System.Drawing.Size(153, 34);
             this.newTimerToolStripMenuItem1.Text = "New Timer...";
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(161, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(150, 6);
             // 
             // RestoreToolStripMenuItem
             // 
             this.RestoreToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("RestoreToolStripMenuItem.Image")));
             this.RestoreToolStripMenuItem.Name = "RestoreToolStripMenuItem";
-            this.RestoreToolStripMenuItem.Size = new System.Drawing.Size(164, 34);
+            this.RestoreToolStripMenuItem.Size = new System.Drawing.Size(153, 34);
             this.RestoreToolStripMenuItem.Text = "Restore";
             this.RestoreToolStripMenuItem.Click += new System.EventHandler(this.RestoreToolStripMenuItem_Click);
             // 
             // QuitContextMenuSeparatorItem
             // 
             this.QuitContextMenuSeparatorItem.Name = "QuitContextMenuSeparatorItem";
-            this.QuitContextMenuSeparatorItem.Size = new System.Drawing.Size(161, 6);
+            this.QuitContextMenuSeparatorItem.Size = new System.Drawing.Size(150, 6);
             // 
             // QuitContextMenuItem
             // 
             this.QuitContextMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("QuitContextMenuItem.Image")));
             this.QuitContextMenuItem.Name = "QuitContextMenuItem";
-            this.QuitContextMenuItem.Size = new System.Drawing.Size(164, 34);
+            this.QuitContextMenuItem.Size = new System.Drawing.Size(153, 34);
             this.QuitContextMenuItem.Text = "Quit";
             this.QuitContextMenuItem.Click += new System.EventHandler(this.QuitContextMenuItem_Click);
             // 
@@ -372,7 +366,6 @@
             this.bindingNavigatorDeleteItem.RightToLeftAutoMirrorImage = true;
             this.bindingNavigatorDeleteItem.Size = new System.Drawing.Size(32, 32);
             this.bindingNavigatorDeleteItem.Text = "Delete";
-            this.bindingNavigatorDeleteItem.Click += new System.EventHandler(this.BindingNavigatorDeleteItem_Click);
             // 
             // bindingNavigatorMoveFirstItem
             // 
@@ -447,7 +440,6 @@
             this.bindingNavigatorAddNewItem.RightToLeftAutoMirrorImage = true;
             this.bindingNavigatorAddNewItem.Size = new System.Drawing.Size(32, 32);
             this.bindingNavigatorAddNewItem.Text = "Add new";
-            this.bindingNavigatorAddNewItem.Click += new System.EventHandler(this.BindingNavigatorAddNewItem_Click);
             // 
             // JobTimerForm
             // 
