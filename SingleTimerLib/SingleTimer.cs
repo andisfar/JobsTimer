@@ -6,6 +6,12 @@ using System.Runtime.CompilerServices;
 
 namespace SingleTimerLib
 {
+    public enum TimerStates
+    {
+        Running,
+        Stopped
+    }
+
     public class SingleTimer : INotifyPropertyChanged, IDisposable
     {
         public delegate void TimerResetHandler(object sender, SingleTimerLibEventArgs e);
@@ -221,6 +227,8 @@ namespace SingleTimerLib
             OnPropertyChangedEventHandler(nameof(RunningElapsedTime));
             OnResetTimer();
         }
+
+        public TimerStates TimerState { get => stopWatch.IsRunning ? TimerStates.Running : TimerStates.Stopped; }
 
         public void StopTimer()
         {

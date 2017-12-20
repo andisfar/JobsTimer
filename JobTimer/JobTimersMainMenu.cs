@@ -37,10 +37,21 @@ namespace JobTimer
         public JobTimerForm()
         {
             InitializeComponent();
-            InitializeDataFile();          
             jobTimersIcon.Visible = false;
             _timers = new SingleTimersCollection();
+            Timers.RowDeleting += Timers_RowDeleting;
+            InitializeDataFile();
         }
+
+        private void Timers_RowDeleting(object sender, DataRowChangeEventArgs e)
+        {
+            DebugPrint(String.Format("Row Index: {0}, Row State: {1}", e.Row.TimerKey(), e.Row.RowState.ToString()));
+            // Have to remove the Timer from the Timers list as well
+            TimersList[e.Row.TimerKey()].Dispose();
+            TimersList.Remove(e.Row.TimerKey());
+            DebugPrint(TimersList);
+        }
+
         private void InitializeDataFile()
         {
             if (!Directory.Exists(Path.Combine(Environment.SpecialFolder.ApplicationData.ToString(), @"Data")))
@@ -69,7 +80,7 @@ namespace JobTimer
             }
             finally
             {
-                //                SetupSavedTimers();               
+               //
             }
         }
         private DataTable GetSavedTimers()
@@ -77,11 +88,32 @@ namespace JobTimer
             Timers.ReadXml(DataFile);
             Timers.AcceptChanges();
             TimersDataGridView.Update();
-            //AddTimersToTimersList();
+            AddTimersToTimersList(Timers.Rows);
             //AddTimersChildMenuItemsToDropDownMenu();
             DebugPrint(Timers);
+            DebugPrint(_timers);
             return Timers;
         }
+
+        private void DebugPrint(SingleTimersCollection timerlist)
+        {
+            foreach(SingleTimer _t in timerlist.Values)
+            {
+                DebugPrint(_t);
+            }
+        }
+
+        private void AddTimersToTimersList(DataRowCollection rows)
+        {
+            foreach(DataRow row in rows)
+            {
+                if(!_timers.ContainsKey(row.TimerKey()))
+                {
+                    _timers.AddTimer(row.TimerKey(),row.TimerCanonicalName(),row.TimerElapsedTime());
+                }
+            }
+        }
+
         private void WriteDataToXml()
         {
             Timers.EnsureCanonicalTimerNames();
@@ -170,6 +202,7 @@ namespace JobTimer
         {
             Properties.Settings.Default.Reload();
             Text += "-[Active]";
+            DebugPrint(TimersDataGridView.Rows);
         }
         private void JobTimerForm_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -206,8 +239,9 @@ namespace JobTimer
         }
         private void DebugPrint(DataRow row)
         {
-            DebugPrint(string.Format("Row Data [{0},{1},{2}]", row.TimerCanonicalName(), row.TimerElapsedTime(), row.TimerKey()));
+            DebugPrint(string.Format("Row Index: {0}, Row State: {1}", row.TimerKey(), row.RowState.ToString()));
         }
+
         private void DebugPrint(DataTable timers)
         {
             foreach (DataRow row in timers.Rows)
@@ -217,19 +251,28 @@ namespace JobTimer
         }
         private void DebugPrint(SingleTimer t)
         {
-            DebugPrint(string.Format("Name: {0} ElapsedTime: {1} Running: {2}", t.CanonicalName, t.RunningElapsedTime, t.IsRunning ? "Yes" : "No"));
+            DebugPrint(string.Format("Timer Row Index: {0}, Timer State: {1}", t.RowIndex, t.TimerState.ToString()));
         }
+
         private void DebugPrint(string message, [CallerMemberName] string caller="")
         {
             string messageWithTimeStamp = string.Format("[{0}]\t{1} says {2}", DateTime.Now.ToString("HH:mm:ss:fff"), caller, message);
             Debug.Print(messageWithTimeStamp);
         }
+
         private DialogResult ShowSingleTimerEditorForm(DataGridViewCellCancelEventArgs e, out SingleTimer t, bool needNewTimer = false)
         {
-            SingleTimerEditorForm editor = new SingleTimerEditorForm(e, needNewTimer);//,Editor_QueryTimerNeeded);
-           // editor.QueryTimerNeeded += Editor_QueryTimerNeeded;            
+            SingleTimerEditorForm editor = new SingleTimerEditorForm(e, needNewTimer, Editor_QueryTimerNeeded);//,Editor_QueryTimerNeeded);
+            editor.QueryTimerNeeded += Editor_QueryTimerNeeded;
             t = editor.Timer;
             return editor.ShowDialog(this);
+        }
+
+        private void Editor_QueryTimerNeeded(object sender, SingleTimerEditorFormTimerNeededEventArgs e)
+        {
+            int dataRowIndex = TimersDataGridView.Rows[e.RowIndex].DataRowIndex();
+            Debug.Assert(dataRowIndex >= 0);
+            e.Timer = TimersList[dataRowIndex];
         }
 
         private void SavedTimersBindingSource_DataError(object sender, BindingManagerDataErrorEventArgs e)
@@ -240,6 +283,54 @@ namespace JobTimer
         private void SavedTimersBindingSource_AddingNew(object sender, System.ComponentModel.AddingNewEventArgs e)
         {
 
+        }
+
+        private void BindingNavigatorDeleteItem_Click(object sender, EventArgs e)
+        {
+            DebugPrint(string.Format("Object is {0}", sender.ToString()));
+            Timers.AcceptChanges();
+            DebugPrint(Timers.Rows);
+            DebugPrint(TimersDataGridView.Rows);
+        }
+
+        private void DebugPrint(DataGridViewRowCollection rows)
+        {
+            foreach (DataGridViewRow row in rows)
+            {
+                DebugPrint(row);
+            }
+        }
+
+        private void DebugPrint(DataGridViewRow row)
+        {
+            DebugPrint(string.Format("View Row Index: {0}, View Row State: {1}", row.Index, row.State.ToString()));
+        }
+
+        private void TimersDataGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
+        {
+            if (ShowSingleTimerEditorForm(e,out SingleTimer t, false) == DialogResult.OK)
+            {
+                Timers.Rows[DataRowIndex(e.RowIndex)].SetCanoniicalName(t.CanonicalName);
+                Timers.Rows[DataRowIndex(e.RowIndex)].SetTimerElapsedTime(t.RunningElapsedTime);
+
+                DebugPrint(Timers.Rows);
+                DebugPrint(TimersList);
+                DebugPrint(TimersDataGridView.Rows);
+            }
+            e.Cancel = true;
+        }
+
+        private int DataRowIndex(int rowIndex)
+        {
+            return TimersDataGridView.Rows[rowIndex].DataRowIndex();
+        }
+
+        private void DebugPrint(DataRowCollection rows)
+        {
+            foreach(DataRow row in rows)
+            {
+                DebugPrint(row);
+            }
         }
     }
     [Serializable]
@@ -360,6 +451,11 @@ namespace JobTimer
                     return true;
             }
             return false;
+        }
+
+        public static int DataRowIndex(this DataGridViewRow row)
+        {
+            return Int32.Parse(row.Cells[2].EditedFormattedValue.ToString());
         }
 
         public static void Remove(this ToolStripDropDownMenu me, string key)

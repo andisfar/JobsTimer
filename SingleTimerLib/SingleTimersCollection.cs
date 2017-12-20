@@ -69,10 +69,10 @@ namespace SingleTimerLib
             Add(item.Key, item.Value);
         }
 
-        public SingleTimerLib.SingleTimer AddTimer(int key, SingleTimer value)
+        public SingleTimerLib.SingleTimer AddTimer(int key, string canonicalNmae, string elapsedTimeOffset)
         {
-            Add(key, value);
-            return value;
+            Add(key, new SingleTimer(key, canonicalNmae, elapsedTimeOffset));
+            return this[key];
         }
 
         public void Add(int key, SingleTimer value)

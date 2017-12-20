@@ -1,23 +1,19 @@
 <?xml version="1.0" standalone="yes"?>
 <SavedTimersDataSet>
   <Timers>
-    <TimerName xsi:type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">One on One</TimerName>
+    <TimerName xsi:type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">One to One</TimerName>
     <PreviousTimeSpan>00:00:00</PreviousTimeSpan>
   </Timers>
   <Timers>
-    <TimerName xsi:type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">Two-Turtle Doves</TimerName>
+    <TimerName xsi:type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">Two</TimerName>
     <PreviousTimeSpan>00:02:58</PreviousTimeSpan>
-  </Timers>
-  <Timers>
-    <TimerName xsi:type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">Three's company</TimerName>
-    <PreviousTimeSpan>00:05:40</PreviousTimeSpan>
   </Timers>
   <Timers>
     <TimerName xsi:type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">Four</TimerName>
     <PreviousTimeSpan>00:06:23</PreviousTimeSpan>
   </Timers>
   <Timers>
-    <TimerName xsi:type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">Another Timer</TimerName>
-    <PreviousTimeSpan>00:00:36</PreviousTimeSpan>
+    <TimerName xsi:type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">Four-Seven</TimerName>
+    <PreviousTimeSpan>07:06:23</PreviousTimeSpan>
   </Timers>
 </SavedTimersDataSet>

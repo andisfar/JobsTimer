@@ -89,6 +89,7 @@ namespace SingleTimerLib
         {            
             if(StartIn == 0)
             { ActiveControl = TimerNameTextBox; } else { ActiveControl = TimerElapsedTimeTextBox; }
+            Application.DoEvents();
         }
 
         private void AcceptButton_Click(object sender, EventArgs e)
