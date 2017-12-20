@@ -50,30 +50,12 @@ namespace SingleTimerLib
             Timer = e.Timer;
             if (Timer != null)
             {
-                Timer.PropertyChanged += Timer_PropertyChanged;
+                Timer.StopTimer();
                 RunTimerCheckBox.ImageKey = Timer.IsRunning ? "stop" : "play";
                 RunTimerCheckBox.Checked = Timer.IsRunning;
                 ThreadSafeUpdateOfTimerElapsedTime(Timer.RunningElapsedTime);
                 ThreadSafeUpdateTimerName(Timer.CanonicalName);
-            }
-            
-        }
-
-        private void Timer_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {            
-            switch(e.PropertyName)
-            {
-                case nameof(Timer.RunningElapsedTime):
-                    ThreadSafeUpdateOfTimerElapsedTime(Timer.RunningElapsedTime);
-                    DebugPrint(string.Format("'{0}'s property [{1}] changed! ==> {2}", Timer.CanonicalName, e.PropertyName, Timer.RunningElapsedTime));
-                    break;
-                case nameof(Timer.Name):
-                    ThreadSafeUpdateTimerName(Timer.CanonicalName);
-                    DebugPrint(string.Format("'{0}'s property [{1}] changed! ==> {2}", Timer.CanonicalName, e.PropertyName, Timer.CanonicalName));
-                    break;
-                default:
-                    break;
-            }
+            }            
         }
 
         private void ThreadSafeUpdateOfTimerElapsedTime(string runningElapsedTime)
@@ -159,7 +141,10 @@ namespace SingleTimerLib
         {
             UpdateRunStopImage();
             if (RunTimerCheckBox.Checked)
+            {
                 Timer.StartTimer();
+                TimerElapsedTimeTextBox.Text = Timer.RunningElapsedTime;
+            }
             else
                 Timer.StopTimer();
         }
@@ -171,6 +156,8 @@ namespace SingleTimerLib
 
         private void TimerNameTextBox_Validated(object sender, EventArgs e)
         {
+            if (Timer == null) QueryRetrieveTimer(this, new SingleTimerEditorFormTimerNeededEventArgs(RowIndex, _newTimerNeeded));
+            Debug.Assert(Timer != null);
             if(TimerNameTextBox.Text != Timer.CanonicalName)
             {
                 if(!editActions.Contains(EditActions.ChangeName))editActions.Add(EditActions.ChangeName);

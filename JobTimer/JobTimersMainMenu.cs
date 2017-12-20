@@ -88,20 +88,50 @@ namespace JobTimer
             {
                 case DataRowState.Added:
                     {
+                        ThreadSafeDataGridViewUpdate(timersDataGridView);
                         AddTimerToTimersList(e.Row);
                         AddTimerChildMenuItemToDropDownMenu(e.Row);
                         break;
                     }
                 case DataRowState.Modified:
                     {
+
+                        DebugPrint(e.Row);
+                        //Timers.AcceptChanges();
                         //TimersList[e.Row.TimerKey()].ReNameTimer(e.Row.TimerCanonicalName());
-                        timersDataGridView.Rows[e.Row.TimerKey()].SetTimerNameValue(e.Row.TimerCanonicalName());
+                        //e.Row.AcceptChanges();
+                        //ThreadSafeDataGridViewUpdate(timersDataGridView);
+                        DebugPrint(Timers);
+                        //timersDataGridView.Rows[e.Row.TimerKey()].SetTimerNameValue(e.Row.TimerCanonicalName());
                         break;
                     }
                 default:
                     break;
             }
             DebugPrint(string.Format("Changing Row Data [{0},{1},{2}]", e.Row.TimerCanonicalName(), e.Row.TimerElapsedTime(), e.Row.TimerKey()));
+        }
+
+        private void DebugPrint(DataRow row)
+        {
+            DebugPrint(string.Format("Row Data [{0},{1},{2}]", row.TimerCanonicalName(), row.TimerElapsedTime(), row.TimerKey()));
+        }
+
+        private void DebugPrint(DataTable timers)
+        {
+            foreach (DataRow row in timers.Rows)
+            {
+                DebugPrint(row);   
+            }
+        }
+
+        private void ThreadSafeDataGridViewUpdate(DataGridView dataGridView)
+        {
+           if(dataGridView.InvokeRequired)
+            {
+                dataGridView.Invoke(new Action<DataGridView>(ThreadSafeDataGridViewUpdate), dataGridView);
+                return;
+            }
+            dataGridView.Update();
         }
 
         private void AddTimerChildMenuItemToDropDownMenu(DataRow row)
@@ -133,6 +163,18 @@ namespace JobTimer
                             _t.ElapsedTimeChanging += OnTimer_ElapsedTimeChanging;
                             _t.TimerReset += OnTimer_TimerReset;
                         }
+                        break;
+                    }
+                case DataRowState.Modified:
+                    {
+                        TimersList[row.TimerKey()].ReNameTimer(row.TimerCanonicalName());
+                        TimersList[row.TimerKey()].SetElapsedTime(row.TimerElapsedTime());
+
+                        TimersList[row.TimerKey()].NameChanging += OnTimer_NameChanging;
+                        TimersList[row.TimerKey()].ElapsedTimeChanging += OnTimer_ElapsedTimeChanging;
+                        TimersList[row.TimerKey()].TimerReset += OnTimer_TimerReset;
+
+                        DebugPrint(TimersList[row.TimerKey()]);
                         break;
                     }
                 default:
@@ -213,8 +255,7 @@ namespace JobTimer
         }
 
         private void OnTimer_ElapsedTimeChanging(object sender, SingleTimerElapsedTimeChangingEventArgs e, [CallerMemberName] string caller = "")
-        {
-            if (Timers.Rows[e.Timer.RowIndex].RowState == DataRowState.Deleted) return;
+        {            
             Timers.Rows[e.Timer.RowIndex].SetTimerElapsedTime(e.Timer.RunningElapsedTime);
             Timers.AcceptChanges();
         }
@@ -228,8 +269,15 @@ namespace JobTimer
         private void OnTimer_NameChanging(object sender, SingleTimerNameChangingEventArgs e, [CallerMemberName] string caller = "")
         {
             DebugPrint(string.Format("Old Name '{0}' ==> New Name '{1}'", e.OldName, e.NewName));
-            Timers.Rows[e.Timer.RowIndex].SetCanoniicalName(e.Timer.CanonicalName);
+            Timers.Rows[e.Timer.RowIndex].SetCanoniicalName(e.NewName);
             Timers.Rows[e.Timer.RowIndex].AcceptChanges();
+            DebugPrint(Timers.Rows[e.Timer.RowIndex]);
+            DebugPrint(TimersList[e.Timer.RowIndex]);
+        }
+
+        private void DebugPrint(SingleTimer t)
+        {
+            DebugPrint(string.Format("Name: {0} ElapsedTime: {1} Running: {2}", t.CanonicalName, t.RunningElapsedTime, t.IsRunning? "Yes":"No"));
         }
 
         private void QuitToolStripMenuItem_Click(object sender, EventArgs e) => DoClose();
@@ -371,6 +419,7 @@ namespace JobTimer
                 if(ShowSingleTimerEditorForm(e, out SingleTimer _t) == DialogResult.OK)
                 {
                     Timers.AcceptChanges();
+                    DebugPrint(Timers);
                 }
                 else
                 {
@@ -466,9 +515,17 @@ namespace JobTimer
         {
             foreach(DataRow _r in me.Rows)
             {
-                if (_r.RowState == DataRowState.Deleted) continue;
-                _r[0] = _r.TimerCanonicalName();
-                _r.AcceptChanges();
+                switch (_r.RowState)
+                {
+                    case DataRowState.Added:
+                        {
+                            _r[0] = _r.TimerCanonicalName();
+                            _r.AcceptChanges();
+                            break;
+                        }
+                    default:
+                        break;
+                }
             }
         }
 
@@ -497,34 +554,6 @@ namespace JobTimer
         public static int TimerKey(this DataRow me)
         {
             return me[2].ToString().ToInt();
-        }
-
-        public static void MoveToSelectedItem(this BindingNavigator me, int rowIndex)
-        {
-            int currentIndex = Int32.Parse(me.PositionItem.Text);
-            while (me.PositionItem.Text != rowIndex.ToString())
-            {
-                if (currentIndex < rowIndex)
-                {
-                    me.MoveNextItem.PerformClick();
-                }
-                else
-                {
-                    me.MovePreviousItem.PerformClick();
-                }
-                currentIndex = Int32.Parse(me.PositionItem.Text);
-            }
-        }
-
-        public static ToolStripMenuItem[] FindItemThatStartsWith(this ToolStripItemCollection me, string startsWith)
-        {
-            List<ToolStripMenuItem> startedWith = new List<ToolStripMenuItem>();
-            foreach(ToolStripMenuItem chldItem in me)
-            {
-                if(chldItem.Text.StartsWith(startsWith))
-                { startedWith.Add(chldItem); }
-            }
-            return startedWith.ToArray();
         }
 
         /// <summary>
