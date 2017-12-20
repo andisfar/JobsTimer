@@ -31,13 +31,13 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(JobTimerForm));
             this.jobTimersMainMenu = new System.Windows.Forms.MenuStrip();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.quitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ToolStripQuitSeparatorItem = new System.Windows.Forms.ToolStripSeparator();
+            this.QuitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newTimerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.timersDataGridView = new System.Windows.Forms.DataGridView();
+            this.TimersDataGridView = new System.Windows.Forms.DataGridView();
             this.timerNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.previousTimeSpanDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.keyDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -71,7 +71,7 @@
             this.bindingNavigatorAddNewItem = new System.Windows.Forms.ToolStripButton();
             this.jobTimersMainMenu.SuspendLayout();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.timersDataGridView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TimersDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.SavedTimersBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.SavedTimersDataSet)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Timers)).BeginInit();
@@ -85,7 +85,7 @@
             // 
             this.jobTimersMainMenu.ImageScalingSize = new System.Drawing.Size(28, 28);
             this.jobTimersMainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
+            this.FileToolStripMenuItem,
             this.timersToolStripMenuItem});
             this.jobTimersMainMenu.Location = new System.Drawing.Point(0, 0);
             this.jobTimersMainMenu.Name = "jobTimersMainMenu";
@@ -94,28 +94,28 @@
             this.jobTimersMainMenu.TabIndex = 1;
             this.jobTimersMainMenu.Text = "Job Timers Main Menu";
             // 
-            // fileToolStripMenuItem
+            // FileToolStripMenuItem
             // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripSeparator1,
-            this.quitToolStripMenuItem});
-            this.fileToolStripMenuItem.Image = global::JobTimer.Properties.Resources.file;
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(65, 32);
-            this.fileToolStripMenuItem.Text = "&File";
+            this.FileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ToolStripQuitSeparatorItem,
+            this.QuitToolStripMenuItem});
+            this.FileToolStripMenuItem.Image = global::JobTimer.Properties.Resources.file;
+            this.FileToolStripMenuItem.Name = "FileToolStripMenuItem";
+            this.FileToolStripMenuItem.Size = new System.Drawing.Size(65, 32);
+            this.FileToolStripMenuItem.Text = "&File";
             // 
-            // toolStripSeparator1
+            // ToolStripQuitSeparatorItem
             // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(94, 6);
+            this.ToolStripQuitSeparatorItem.Name = "ToolStripQuitSeparatorItem";
+            this.ToolStripQuitSeparatorItem.Size = new System.Drawing.Size(161, 6);
             // 
-            // quitToolStripMenuItem
+            // QuitToolStripMenuItem
             // 
-            this.quitToolStripMenuItem.Image = global::JobTimer.Properties.Resources.quit;
-            this.quitToolStripMenuItem.Name = "quitToolStripMenuItem";
-            this.quitToolStripMenuItem.Size = new System.Drawing.Size(97, 22);
-            this.quitToolStripMenuItem.Text = "&Quit";
-            this.quitToolStripMenuItem.Click += new System.EventHandler(this.QuitToolStripMenuItem_Click);
+            this.QuitToolStripMenuItem.Image = global::JobTimer.Properties.Resources.quit;
+            this.QuitToolStripMenuItem.Name = "QuitToolStripMenuItem";
+            this.QuitToolStripMenuItem.Size = new System.Drawing.Size(164, 34);
+            this.QuitToolStripMenuItem.Text = "&Quit";
+            this.QuitToolStripMenuItem.Click += new System.EventHandler(this.QuitContextMenuItem_Click);
             // 
             // timersToolStripMenuItem
             // 
@@ -135,7 +135,7 @@
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.timersDataGridView);
+            this.panel1.Controls.Add(this.TimersDataGridView);
             this.panel1.Controls.Add(this.timersToolStrinp);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 34);
@@ -144,26 +144,25 @@
             this.panel1.Size = new System.Drawing.Size(428, 216);
             this.panel1.TabIndex = 3;
             // 
-            // timersDataGridView
+            // TimersDataGridView
             // 
-            this.timersDataGridView.AllowUserToAddRows = false;
-            this.timersDataGridView.AutoGenerateColumns = false;
-            this.timersDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.timersDataGridView.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
-            this.timersDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.timersDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.TimersDataGridView.AllowUserToAddRows = false;
+            this.TimersDataGridView.AutoGenerateColumns = false;
+            this.TimersDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.TimersDataGridView.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
+            this.TimersDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.TimersDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.timerNameDataGridViewTextBoxColumn,
             this.previousTimeSpanDataGridViewTextBoxColumn,
             this.keyDataGridViewTextBoxColumn});
-            this.timersDataGridView.DataSource = this.SavedTimersBindingSource;
-            this.timersDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.timersDataGridView.Location = new System.Drawing.Point(0, 35);
-            this.timersDataGridView.Margin = new System.Windows.Forms.Padding(2);
-            this.timersDataGridView.Name = "timersDataGridView";
-            this.timersDataGridView.RowTemplate.Height = 31;
-            this.timersDataGridView.Size = new System.Drawing.Size(428, 181);
-            this.timersDataGridView.TabIndex = 2;
-            this.timersDataGridView.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.TimersDataGridView_CellBeginEdit);
+            this.TimersDataGridView.DataSource = this.SavedTimersBindingSource;
+            this.TimersDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TimersDataGridView.Location = new System.Drawing.Point(0, 35);
+            this.TimersDataGridView.Margin = new System.Windows.Forms.Padding(2);
+            this.TimersDataGridView.Name = "TimersDataGridView";
+            this.TimersDataGridView.RowTemplate.Height = 31;
+            this.TimersDataGridView.Size = new System.Drawing.Size(428, 181);
+            this.TimersDataGridView.TabIndex = 2;
             // 
             // timerNameDataGridViewTextBoxColumn
             // 
@@ -440,7 +439,6 @@
             this.bindingNavigatorAddNewItem.RightToLeftAutoMirrorImage = true;
             this.bindingNavigatorAddNewItem.Size = new System.Drawing.Size(32, 32);
             this.bindingNavigatorAddNewItem.Text = "Add new";
-            this.bindingNavigatorAddNewItem.Click += new System.EventHandler(this.BindingNavigatorAddNewItem_Click);
             // 
             // JobTimerForm
             // 
@@ -467,7 +465,7 @@
             this.jobTimersMainMenu.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.timersDataGridView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TimersDataGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.SavedTimersBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.SavedTimersDataSet)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Timers)).EndInit();
@@ -485,9 +483,9 @@
         #endregion
 
         private System.Windows.Forms.MenuStrip jobTimersMainMenu;
-        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripMenuItem quitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem FileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator ToolStripQuitSeparatorItem;
+        private System.Windows.Forms.ToolStripMenuItem QuitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem timersToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem newTimerToolStripMenuItem;
         private System.Windows.Forms.Panel panel1;
@@ -501,7 +499,7 @@
         private System.Windows.Forms.ToolStripMenuItem activeTimersMenu;
         private System.Windows.Forms.ToolStripMenuItem newTimerToolStripMenuItem1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
-        private System.Windows.Forms.DataGridView timersDataGridView;
+        private System.Windows.Forms.DataGridView TimersDataGridView;
         private System.Data.DataSet SavedTimersDataSet;
         private System.Data.DataTable Timers;
         private System.Data.DataColumn TimerName;
