@@ -114,6 +114,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="SavedTimers.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <EmbeddedResource Include="Resources\file.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>

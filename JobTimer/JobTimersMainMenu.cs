@@ -52,10 +52,18 @@ namespace JobTimer
             Timers.RowChanging += Timers_RowChanging;
 
             _dropDownMenu = new ToolStripDropDownMenu();
-
-            DataFile = Path.Combine(Environment.SpecialFolder.ApplicationData.ToString(), @"Data\SavedTimers.xml");
             if (!Directory.Exists(Path.Combine(Environment.SpecialFolder.ApplicationData.ToString(), @"Data")))
                 Directory.CreateDirectory(Path.Combine(Environment.SpecialFolder.ApplicationData.ToString(), @"Data"));
+
+            FileInfo inf = new FileInfo(Application.ExecutablePath);
+            if (File.Exists(Path.Combine(inf.DirectoryName, @"SavedTimers.xml")))
+            {
+                File.Copy(Path.Combine(inf.DirectoryName, @"SavedTimers.xml"),
+                    Path.Combine(Environment.SpecialFolder.ApplicationData.ToString(), @"Data\SavedTimers.xml"),true);
+            }
+
+            DataFile = Path.Combine(Environment.SpecialFolder.ApplicationData.ToString(), @"Data\SavedTimers.xml");
+            
             try
             {
                 if (File.Exists(DataFile))
@@ -86,7 +94,8 @@ namespace JobTimer
                     }
                 case DataRowState.Modified:
                     {
-                        TimersList[e.Row.TimerKey()].ReNameTimer(e.Row.TimerCanonicalName());
+                        //TimersList[e.Row.TimerKey()].ReNameTimer(e.Row.TimerCanonicalName());
+                        timersDataGridView.Rows[e.Row.TimerKey()].SetTimerNameValue(e.Row.TimerCanonicalName());
                         break;
                     }
                 default:
@@ -218,8 +227,9 @@ namespace JobTimer
 
         private void OnTimer_NameChanging(object sender, SingleTimerNameChangingEventArgs e, [CallerMemberName] string caller = "")
         {
-            if (Timers.Rows[e.Timer.RowIndex].RowState == DataRowState.Deleted) return;
-            Timers.Rows[e.Timer.RowIndex].SetCanoniicalName(e.NewName);
+            DebugPrint(string.Format("Old Name '{0}' ==> New Name '{1}'", e.OldName, e.NewName));
+            Timers.Rows[e.Timer.RowIndex].SetCanoniicalName(e.Timer.CanonicalName);
+            Timers.Rows[e.Timer.RowIndex].AcceptChanges();
         }
 
         private void QuitToolStripMenuItem_Click(object sender, EventArgs e) => DoClose();
