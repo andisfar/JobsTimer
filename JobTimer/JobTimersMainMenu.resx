@@ -120,8 +120,17 @@
   <metadata name="jobTimersMainMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <metadata name="timersToolStrinp.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>181, 17</value>
+  </metadata>
   <metadata name="SavedTimersBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>180, 56</value>
+  </metadata>
+  <metadata name="SavedTimersBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>180, 56</value>
+  </metadata>
+  <metadata name="SavedTimersDataSet.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 56</value>
   </metadata>
   <metadata name="SavedTimersDataSet.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 56</value>
@@ -166,6 +175,24 @@
   <metadata name="jobTimersContextMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>451, 17</value>
   </metadata>
+  <data name="jobTimersIcon.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        AAABAAEAHyMQdQAAAAAkAwAAFgAAACgAAAAfAAAARgAAAAEABAAAAAAAvAIAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAACAAACAAAAAgIAAgAAAAIAAgACAgAAAgICAAMDAwAAAAP8AAP8AAAD//wD/AAAA/wD/AP//
+        AAD///8A////////////////////8P////////////////////D////////////////////w////////
+        ////////////8P////////////////////D////////////////////w////////////////////8P//
+        /////4iIiI////////D//////4h3d3d4j//////w//////h3d3d3d3j/////8P////+Hd4iIiId3j///
+        //D////4d4j////4d3j////w////h3j//////4d3j///8P///3d4///////4d4////D///h3j///iI//
+        /4d4///w///4d///iHd4//+HeP//8P//+Hf//4dwd4//h3j///D///h3//+HAAeP/4d4///w///4d///
+        hyB3j/+HeP//8P//+Hf//4d3eI//h3j///D///h3j//4d3j//4d4///w////d4j/+Hd4//h3j///8P//
+        /4d4//93j//4d4////D///+Hd4j/d4/4h3j////w////+Hd4/3ePh3eP////8P////+Hd3d3d3d4////
+        //D/////+Id3AAd3iP/////w///////4dwAHiP//////8P//////+HcAB4////////D///////dwAAB4
+        ///////w///////4d3d3eP//////8P///////4j/+I////////D////////////////////w////////
+        ////////////8P////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+</value>
+  </data>
   <data name="activeTimersMenu.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         Qk1WDQAAAAAAADYAAAAoAAAAHwAAACMAAAABABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA9vb29vb2
@@ -1741,24 +1768,6 @@
         0IkTBhj97YgdsSO2q9h0ntsxJxNo22jTiLq9n2YB6K/15AxEAifAE5jJCZIJbtA5iYUnLIav952gRr4w
         P6Qvvj5Cn315iL49cIoOHeMnYung3H0HTwv4uhGDtnyRDjrooH2CBWdo43u+4QSC2/VxbtNwwf7DZ+nL
         vcfoKJIGFsJpzlAOHj1HB4400d79J8URyg0sHIHo/wHVCmKVODRpYAAAAABJRU5ErkJggg==
-</value>
-  </data>
-  <data name="jobTimersIcon.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        AAABAAEAHyMQdQAAAAAkAwAAFgAAACgAAAAfAAAARgAAAAEABAAAAAAAvAIAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAACAAACAAAAAgIAAgAAAAIAAgACAgAAAgICAAMDAwAAAAP8AAP8AAAD//wD/AAAA/wD/AP//
-        AAD///8A////////////////////8P////////////////////D////////////////////w////////
-        ////////////8P////////////////////D////////////////////w////////////////////8P//
-        /////4iIiI////////D//////4h3d3d4j//////w//////h3d3d3d3j/////8P////+Hd4iIiId3j///
-        //D////4d4j////4d3j////w////h3j//////4d3j///8P///3d4///////4d4////D///h3j///iI//
-        /4d4///w///4d///iHd4//+HeP//8P//+Hf//4dwd4//h3j///D///h3//+HAAeP/4d4///w///4d///
-        hyB3j/+HeP//8P//+Hf//4d3eI//h3j///D///h3j//4d3j//4d4///w////d4j/+Hd4//h3j///8P//
-        /4d4//93j//4d4////D///+Hd4j/d4/4h3j////w////+Hd4/3ePh3eP////8P////+Hd3d3d3d4////
-        //D/////+Id3AAd3iP/////w///////4dwAHiP//////8P//////+HcAB4////////D///////dwAAB4
-        ///////w///////4d3d3eP//////8P///////4j/+I////////D////////////////////w////////
-        ////////////8P////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 </value>
   </data>
   <metadata name="SavedTimersBindingNavigator.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">

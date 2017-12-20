@@ -107,13 +107,13 @@
             // ToolStripQuitSeparatorItem
             // 
             this.ToolStripQuitSeparatorItem.Name = "ToolStripQuitSeparatorItem";
-            this.ToolStripQuitSeparatorItem.Size = new System.Drawing.Size(161, 6);
+            this.ToolStripQuitSeparatorItem.Size = new System.Drawing.Size(94, 6);
             // 
             // QuitToolStripMenuItem
             // 
             this.QuitToolStripMenuItem.Image = global::JobTimer.Properties.Resources.quit;
             this.QuitToolStripMenuItem.Name = "QuitToolStripMenuItem";
-            this.QuitToolStripMenuItem.Size = new System.Drawing.Size(164, 34);
+            this.QuitToolStripMenuItem.Size = new System.Drawing.Size(97, 22);
             this.QuitToolStripMenuItem.Text = "&Quit";
             this.QuitToolStripMenuItem.Click += new System.EventHandler(this.QuitContextMenuItem_Click);
             // 
@@ -192,6 +192,8 @@
             // 
             this.SavedTimersBindingSource.DataMember = "Timers";
             this.SavedTimersBindingSource.DataSource = this.SavedTimersDataSet;
+            this.SavedTimersBindingSource.AddingNew += new System.ComponentModel.AddingNewEventHandler(this.SavedTimersBindingSource_AddingNew);
+            this.SavedTimersBindingSource.DataError += new System.Windows.Forms.BindingManagerDataErrorEventHandler(this.SavedTimersBindingSource_DataError);
             // 
             // SavedTimersDataSet
             // 

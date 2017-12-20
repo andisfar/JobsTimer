@@ -230,7 +230,17 @@ namespace JobTimer
            // editor.QueryTimerNeeded += Editor_QueryTimerNeeded;            
             t = editor.Timer;
             return editor.ShowDialog(this);
-        }        
+        }
+
+        private void SavedTimersBindingSource_DataError(object sender, BindingManagerDataErrorEventArgs e)
+        {
+
+        }
+
+        private void SavedTimersBindingSource_AddingNew(object sender, System.ComponentModel.AddingNewEventArgs e)
+        {
+
+        }
     }
     [Serializable]
     public class TimersFunctionNotImplemented : NotImplementedException
