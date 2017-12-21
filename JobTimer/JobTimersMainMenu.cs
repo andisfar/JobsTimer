@@ -11,6 +11,12 @@ using SingleTimerLib;
 
 namespace JobTimer
 {
+    public enum InfoTypes
+    {
+        Default,
+        TimerEvents
+    }
+
     public partial class JobTimerForm : Form
     {
         private static JobTimerForm instance = null;        
@@ -39,6 +45,7 @@ namespace JobTimer
             InitializeComponent();
             jobTimersIcon.Visible = false;
             _timers = new SingleTimersCollection();
+            _dropDownMenu = new ToolStripDropDownMenu();
             Timers.RowDeleting += Timers_RowDeleting;
             InitializeDataFile();
         }
@@ -89,17 +96,88 @@ namespace JobTimer
             Timers.AcceptChanges();
             TimersDataGridView.Update();
             AddTimersToTimersList(Timers.Rows);
-            //AddTimersChildMenuItemsToDropDownMenu();
+            AddTimersChildMenuItemsToDropDownMenu();
+            ConnectTimerEvents(TimersList.Timers);
             DebugPrint(Timers);
-            DebugPrint(_timers);
+            DebugPrint(_timers,InfoTypes.TimerEvents);
+            DebugPrint(_dropDownMenu.Items);
             return Timers;
         }
 
-        private void DebugPrint(SingleTimersCollection timerlist)
+        private void ConnectTimerEvents(Dictionary<int, SingleTimer> timers)
+        {
+            foreach (SingleTimer t in timers.Values)
+            {
+                ConnectTimerEvents(t);
+            }
+        }
+
+        private void ConnectTimerEvents(SingleTimer t)
+        {
+            TimersList[t.RowIndex].NameChanging += Timer_NameChanging;
+            TimersList[t.RowIndex].ElapsedTimeChanging += Timer_ElapsedTimeChanging;
+        }
+
+        private void Timer_ElapsedTimeChanging(object sender, SingleTimerElapsedTimeChangingEventArgs e, [CallerMemberName] string caller = "")
+        {
+            Timers.Rows[e.Timer.RowIndex].SetTimerElapsedTime(e.ElapsedTime);
+            Timers.AcceptChanges();
+            DebugPrint(e);
+        }
+
+        private void DebugPrint(SingleTimerElapsedTimeChangingEventArgs e)
+        {
+            string singletimerelapsedtimechangingeventargs =
+                 string.Format("Timer name: {0}, Elapsed Time: {1}", e.Timer.CanonicalName, e.ElapsedTime);
+            DebugPrint(singletimerelapsedtimechangingeventargs);
+        }
+
+        private void Timer_NameChanging(object sender, SingleTimerNameChangingEventArgs e, [CallerMemberName] string caller = "")
+        {
+            Timers.Rows[e.Timer.RowIndex].SetCanoniicalName(e.NewName);
+            Timers.AcceptChanges();
+            DebugPrint(e);
+            DebugPrint(e.Timer, InfoTypes.TimerEvents);
+        }
+
+        private void DebugPrint(SingleTimerNameChangingEventArgs e)
+        {
+            string singletimernamechangingeventargs =
+                string.Format("New name: {0}, Old Name: {1}", e.NewName, e.OldName);
+            DebugPrint(singletimernamechangingeventargs);
+        }
+
+        private void DebugPrint(ToolStripItemCollection items)
+        {
+            foreach (ToolStripMenuItem childMenuItem in items)
+            {
+                DebugPrint(childMenuItem);
+            }
+        }
+
+        private void DebugPrint(ToolStripMenuItem childMenuItem)
+        {
+            DebugPrint(string.Format("Menu Row Index: {0}, Menu State: {1}", childMenuItem.MergeIndex, childMenuItem.CheckState.ToString()));
+        }
+
+        private void AddTimersChildMenuItemsToDropDownMenu()
+        {
+            for(int index = 0; index < TimersList.Count;++index)
+            {
+                AddTimerChildItemToDropDownMenu(CreateChildMenuItem(TimersList[index]));
+            }
+        }
+
+        private void AddTimerChildItemToDropDownMenu(ToolStripMenuItem ChildMenuItem)
+        {
+            _dropDownMenu.Items.Add(ChildMenuItem);
+        }
+
+        private void DebugPrint(SingleTimersCollection timerlist, InfoTypes showMe = InfoTypes.Default)
         {
             foreach(SingleTimer _t in timerlist.Values)
             {
-                DebugPrint(_t);
+                DebugPrint(_t, showMe);
             }
         }
 
@@ -107,10 +185,15 @@ namespace JobTimer
         {
             foreach(DataRow row in rows)
             {
-                if(!_timers.ContainsKey(row.TimerKey()))
-                {
-                    _timers.AddTimer(row.TimerKey(),row.TimerCanonicalName(),row.TimerElapsedTime());
-                }
+                AddTimerToTimersList(row);
+            }
+        }
+
+        private void AddTimerToTimersList(DataRow row)
+        {
+            if (!_timers.ContainsKey(row.TimerKey()))
+            {
+                _timers.AddTimer(row.TimerKey(), row.TimerCanonicalName(), row.TimerElapsedTime());
             }
         }
 
@@ -249,9 +332,58 @@ namespace JobTimer
                 DebugPrint(row);
             }
         }
-        private void DebugPrint(SingleTimer t)
+        private void DebugPrint(SingleTimer t, InfoTypes showMe = InfoTypes.Default)
         {
-            DebugPrint(string.Format("Timer Row Index: {0}, Timer State: {1}", t.RowIndex, t.TimerState.ToString()));
+            switch (showMe)
+            {
+                case InfoTypes.TimerEvents:
+                    {
+                        DebugPrint(string.Format("Name  = {0}", nameof(t.ElapsedTimeChanging)));
+                        try
+                        {
+                            foreach (Delegate @d in t.ElapsedTimeChangingInvocationList)
+                            {
+                                DebugPrint(string.Format("Value = {0}", d.GetMethodInfo().Name));
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            DebugPrint(string.Format("Value = {0}", "Not Set"));
+                        }
+
+                        DebugPrint(string.Format("Name  = {0}", nameof(t.NameChanging)));
+                        try
+                        {
+                            foreach (Delegate @d in t.NameChangingInvocationList)
+                            {
+                                DebugPrint(string.Format("Value = {0}", d.GetMethodInfo().Name));
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            DebugPrint(string.Format("Value = {0}", "Not Set"));
+                        }    
+
+                        DebugPrint(string.Format("Name  = {0}", nameof(t.TimerReset)));
+                        try
+                        {
+                            foreach (Delegate @d in t.TimerResetInvocationList)
+                            {
+                                DebugPrint(string.Format("Value = {0}", d.GetMethodInfo().Name));
+                            }
+                        }
+                        catch (NullReferenceException)
+                        {
+                            DebugPrint(string.Format("Value = {0}", "Not Set"));
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        DebugPrint(string.Format("Timer Row Index: {0}, Timer State: {1}", t.RowIndex, t.TimerState.ToString()));
+                        break;
+                    }
+            }
         }
 
         private void DebugPrint(string message, [CallerMemberName] string caller="")
@@ -311,11 +443,7 @@ namespace JobTimer
             if (ShowSingleTimerEditorForm(e,out SingleTimer t, false) == DialogResult.OK)
             {
                 Timers.Rows[DataRowIndex(e.RowIndex)].SetCanoniicalName(t.CanonicalName);
-                Timers.Rows[DataRowIndex(e.RowIndex)].SetTimerElapsedTime(t.RunningElapsedTime);
-
-                DebugPrint(Timers.Rows);
-                DebugPrint(TimersList);
-                DebugPrint(TimersDataGridView.Rows);
+                Timers.Rows[DataRowIndex(e.RowIndex)].SetTimerElapsedTime(t.RunningElapsedTime);               
             }
             e.Cancel = true;
         }

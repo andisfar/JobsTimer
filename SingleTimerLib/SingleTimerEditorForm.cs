@@ -50,7 +50,7 @@ namespace SingleTimerLib
             Timer = e.Timer;
             if (Timer != null)
             {
-                Timer.StopTimer();
+                //Timer.StopTimer();
                 RunTimerCheckBox.ImageKey = Timer.IsRunning ? "stop" : "play";
                 RunTimerCheckBox.Checked = Timer.IsRunning;
                 ThreadSafeUpdateOfTimerElapsedTime(Timer.RunningElapsedTime);

@@ -38,6 +38,9 @@
             this.newTimerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.TimersDataGridView = new System.Windows.Forms.DataGridView();
+            this.timerNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.previousTimeSpanDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.keyDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.SavedTimersBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.SavedTimersDataSet = new System.Data.DataSet();
             this.Timers = new System.Data.DataTable();
@@ -66,9 +69,6 @@
             this.bindingNavigatorMoveLastItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.bindingNavigatorAddNewItem = new System.Windows.Forms.ToolStripButton();
-            this.timerNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.previousTimeSpanDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.keyDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.jobTimersMainMenu.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.TimersDataGridView)).BeginInit();
@@ -164,6 +164,32 @@
             this.TimersDataGridView.Size = new System.Drawing.Size(428, 181);
             this.TimersDataGridView.TabIndex = 2;
             this.TimersDataGridView.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.TimersDataGridView_CellBeginEdit);
+            // 
+            // timerNameDataGridViewTextBoxColumn
+            // 
+            this.timerNameDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.timerNameDataGridViewTextBoxColumn.DataPropertyName = "TimerName";
+            this.timerNameDataGridViewTextBoxColumn.DividerWidth = 8;
+            this.timerNameDataGridViewTextBoxColumn.HeaderText = "Timer Name";
+            this.timerNameDataGridViewTextBoxColumn.Name = "timerNameDataGridViewTextBoxColumn";
+            // 
+            // previousTimeSpanDataGridViewTextBoxColumn
+            // 
+            this.previousTimeSpanDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.previousTimeSpanDataGridViewTextBoxColumn.DataPropertyName = "PreviousTimeSpan";
+            this.previousTimeSpanDataGridViewTextBoxColumn.DividerWidth = 8;
+            this.previousTimeSpanDataGridViewTextBoxColumn.HeaderText = "PreviousTimeSpan";
+            this.previousTimeSpanDataGridViewTextBoxColumn.Name = "previousTimeSpanDataGridViewTextBoxColumn";
+            // 
+            // keyDataGridViewTextBoxColumn
+            // 
+            this.keyDataGridViewTextBoxColumn.DataPropertyName = "key";
+            this.keyDataGridViewTextBoxColumn.FillWeight = 50F;
+            this.keyDataGridViewTextBoxColumn.HeaderText = "key";
+            this.keyDataGridViewTextBoxColumn.Name = "keyDataGridViewTextBoxColumn";
+            this.keyDataGridViewTextBoxColumn.ReadOnly = true;
+            this.keyDataGridViewTextBoxColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.keyDataGridViewTextBoxColumn.Visible = false;
             // 
             // SavedTimersBindingSource
             // 
@@ -419,32 +445,6 @@
             this.bindingNavigatorAddNewItem.RightToLeftAutoMirrorImage = true;
             this.bindingNavigatorAddNewItem.Size = new System.Drawing.Size(32, 32);
             this.bindingNavigatorAddNewItem.Text = "Add new";
-            // 
-            // timerNameDataGridViewTextBoxColumn
-            // 
-            this.timerNameDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.timerNameDataGridViewTextBoxColumn.DataPropertyName = "TimerName";
-            this.timerNameDataGridViewTextBoxColumn.DividerWidth = 8;
-            this.timerNameDataGridViewTextBoxColumn.HeaderText = "Timer Name";
-            this.timerNameDataGridViewTextBoxColumn.Name = "timerNameDataGridViewTextBoxColumn";
-            // 
-            // previousTimeSpanDataGridViewTextBoxColumn
-            // 
-            this.previousTimeSpanDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.previousTimeSpanDataGridViewTextBoxColumn.DataPropertyName = "PreviousTimeSpan";
-            this.previousTimeSpanDataGridViewTextBoxColumn.DividerWidth = 8;
-            this.previousTimeSpanDataGridViewTextBoxColumn.HeaderText = "PreviousTimeSpan";
-            this.previousTimeSpanDataGridViewTextBoxColumn.Name = "previousTimeSpanDataGridViewTextBoxColumn";
-            // 
-            // keyDataGridViewTextBoxColumn
-            // 
-            this.keyDataGridViewTextBoxColumn.DataPropertyName = "key";
-            this.keyDataGridViewTextBoxColumn.FillWeight = 50F;
-            this.keyDataGridViewTextBoxColumn.HeaderText = "key";
-            this.keyDataGridViewTextBoxColumn.Name = "keyDataGridViewTextBoxColumn";
-            this.keyDataGridViewTextBoxColumn.ReadOnly = true;
-            this.keyDataGridViewTextBoxColumn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.keyDataGridViewTextBoxColumn.Visible = false;
             // 
             // JobTimerForm
             // 

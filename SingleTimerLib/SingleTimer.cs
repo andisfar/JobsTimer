@@ -44,6 +44,34 @@ namespace SingleTimerLib
         private System.Timers.Timer heartBeat;
         private Stopwatch stopWatch;
 
+        public Delegate[] @ElapsedTimeChangingInvocationList
+        {
+            get
+            {
+                MulticastDelegate m = (MulticastDelegate)ElapsedTimeChanging;
+                return m?.GetInvocationList();
+            }
+        }
+
+        public Delegate[] @NameChangingInvocationList
+        {
+            get
+            {
+                MulticastDelegate m = (MulticastDelegate)this.NameChanging;
+                return m?.GetInvocationList();
+            }
+        }
+
+        public Delegate[] @TimerResetInvocationList
+        {
+            get
+            {
+                
+                MulticastDelegate m = (MulticastDelegate)this.TimerReset;
+                return m?.GetInvocationList();
+            }
+        }
+
         public void OnElapsedTimeChanging(object sender, SingleTimerElapsedTimeChangingEventArgs e)
         {
             ElapsedTimeChanging?.Invoke(this, e);
@@ -198,8 +226,7 @@ namespace SingleTimerLib
 
         private int[] ParseHours(string runningElapsedTime)
         {
-            List<int> retInts = new List<int>();
-            retInts.Add(0); retInts.Add(0); retInts.Add(0);
+            List<int> retInts = new List<int>{0,0,0};
             string[] intStr = runningElapsedTime.Split(':');
             retInts[0] = Int32.Parse(intStr[0]);
             retInts[1] = Int32.Parse(intStr[1]);
