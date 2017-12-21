@@ -48,11 +48,19 @@ namespace JobTimer
         {
             DebugPrint(String.Format("Row Index: {0}, Row State: {1}", e.Row.TimerKey(), e.Row.RowState.ToString()));
             // Have to remove the Timer from the Timers list as well
+            DisconnectTimerEvents(TimersList[e.Row.TimerKey()]);
             TimersList[e.Row.TimerKey()].Dispose();
             TimersList.Remove(e.Row.TimerKey());            
             DebugPrint(TimersList);
             int index = TimersDataGridView.Rows.ViewIndexFromDataIndex(e.Row.TimerKey());
             activeTimersMenu.DropDown.Items.RemoveAt(index);            
+        }
+
+        private void DisconnectTimerEvents(SingleTimer t)
+        {
+            TimersList[t.RowIndex].NameChanging -= Timer_NameChanging;
+            TimersList[t.RowIndex].ElapsedTimeChanging -= Timer_ElapsedTimeChanging;
+            TimersList[t.RowIndex].TimerReset -= Timer_TimerElapsedTimeReset;
         }
 
         private void InitializeDataFile()
@@ -475,7 +483,7 @@ namespace JobTimer
             if (sender.ToString() == "Delete_Timer")
             {
                 int index = ((ToolStripMenuItem)sender).OwnerItem.Tag.ToString().ToInt();
-                Timers.Rows.RemoveAt(index);
+                Timers.Rows.RemoveAt(Timers.RowByRowIndex(index).TimerKey());
             }
         }
 
@@ -678,9 +686,12 @@ namespace JobTimer
         {
             foreach(DataRow row in me.Rows)
             {
-                if(row.TimerKey() == rowIndex)
+                if (row.RowState == DataRowState.Unchanged)
                 {
-                    return row;
+                    if (row.TimerKey() == rowIndex)
+                    {
+                        return row;
+                    }
                 }
             }
             return null;
