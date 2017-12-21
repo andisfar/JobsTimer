@@ -49,8 +49,10 @@ namespace JobTimer
             DebugPrint(String.Format("Row Index: {0}, Row State: {1}", e.Row.TimerKey(), e.Row.RowState.ToString()));
             // Have to remove the Timer from the Timers list as well
             TimersList[e.Row.TimerKey()].Dispose();
-            TimersList.Remove(e.Row.TimerKey());
+            TimersList.Remove(e.Row.TimerKey());            
             DebugPrint(TimersList);
+            int index = TimersDataGridView.Rows.ViewIndexFromDataIndex(e.Row.TimerKey());
+            activeTimersMenu.DropDown.Items.RemoveAt(index);            
         }
 
         private void InitializeDataFile()
@@ -122,9 +124,9 @@ namespace JobTimer
 
         private void Timer_ElapsedTimeChanging(object sender, SingleTimerElapsedTimeChangingEventArgs e, [CallerMemberName] string caller = "")
         {
-            Timers.Rows[e.Timer.RowIndex].SetTimerElapsedTime(e.ElapsedTime);
+            Timers.RowByRowIndex(e.Timer.RowIndex).SetTimerElapsedTime(e.ElapsedTime);
             Timers.AcceptChanges();
-            ThredSafeUpdateChildMenuItemText((ToolStripMenuItem)_dropDownMenu.Items[e.Timer.RowIndex], e.Timer.MenuText);
+            ThredSafeUpdateChildMenuItemText((ToolStripMenuItem)_dropDownMenu.ItemByRowIndex(e.Timer.RowIndex), e.Timer.MenuText);
             DebugPrint(e);
         }
 
@@ -185,10 +187,11 @@ namespace JobTimer
 
         private void AddTimersChildMenuItemsToDropDownMenu()
         {
-            for(int index = 0; index < TimersList.Count;++index)
+            foreach(int index in TimersList.Keys)
             {
                 AddTimerChildItemToDropDownMenu(CreateChildMenuItem(TimersList[index]));
             }
+            activeTimersMenu.DropDown = jobTimersIcon.Visible ? _dropDownMenu : null;
         }
 
         private void AddTimerChildItemToDropDownMenu(ToolStripMenuItem ChildMenuItem)
@@ -250,8 +253,22 @@ namespace JobTimer
                 Tag = t.RowIndex
             };
             cMI.MouseDown += ChildMenuItem_MouseDown;
+            cMI.DropDownItems.Add(CreateChildMenuDeleteItem(bindingNavigatorDeleteItem.Image));
+            cMI.DropDownItems[0].Tag = cMI;
             return cMI;
         }
+
+        private ToolStripMenuItem CreateChildMenuDeleteItem(Image image)
+        {
+            ToolStripMenuItem cMI = new ToolStripMenuItem("Delete_Timer", image, Delete_TimerItem_Click)
+            {
+                Name = Text
+            };
+
+            cMI.Click += BindingNavigatorDeleteItem_Click;
+            return cMI;
+        }
+
         private void ChildMenuItem_MouseDown(object sender, MouseEventArgs e)
         {
             ToolStripMenuItem _cMi = (ToolStripMenuItem)sender;
@@ -453,13 +470,24 @@ namespace JobTimer
         {
 
         }
+        private void Delete_TimerItem_Click(object sender, EventArgs e)
+        {
+            if (sender.ToString() == "Delete_Timer")
+            {
+                int index = ((ToolStripMenuItem)sender).OwnerItem.Tag.ToString().ToInt();
+                Timers.Rows.RemoveAt(index);
+            }
+        }
 
         private void BindingNavigatorDeleteItem_Click(object sender, EventArgs e)
         {
-            DebugPrint(string.Format("Object is {0}", sender.ToString()));
+            DebugPrint(string.Format("Object is {0}", sender.ToString()));        
             Timers.AcceptChanges();
+            //AddTimersChildMenuItemsToDropDownMenu();
             DebugPrint(Timers.Rows);
             DebugPrint(TimersDataGridView.Rows);
+            DebugPrint(_dropDownMenu.Items);
+            DebugPrint(sender.GetType().ToString());            
         }
 
         private void DebugPrint(DataGridViewRowCollection rows)
@@ -629,9 +657,50 @@ namespace JobTimer
             me.Items.RemoveByKey(key);
         }
 
+        public static int ViewIndexFromDataIndex(this DataGridViewRowCollection me, int dataIndex)
+        {
+            foreach(DataGridViewRow row in me)
+            {
+                if(row.DataRowIndex() == dataIndex)
+                {
+                    return row.Index;
+                }
+            }
+            return -1;
+        }
+
         public static ToolStripMenuItem GetItemByKey(this ToolStripDropDownMenu me, string key)
         {
             return (ToolStripMenuItem)me.Items[me.Items.IndexOfKey(key)];
+        }
+
+        public static DataRow RowByRowIndex(this DataTable me, int rowIndex)
+        {
+            foreach(DataRow row in me.Rows)
+            {
+                if(row.TimerKey() == rowIndex)
+                {
+                    return row;
+                }
+            }
+            return null;
+        }
+
+        public static ToolStripMenuItem ItemByRowIndex(this ToolStripDropDownMenu me, int rowIndex)
+        {
+            foreach (ToolStripMenuItem cMI in me.Items)
+            {
+                if (cMI.Tag.TimerKey() == rowIndex)
+                {
+                    return cMI;
+                }
+            }
+            return null;
+        }
+
+        public static int TimerKey(this object me)
+        {
+            return me.ToString().ToInt();
         }
     }
 }
