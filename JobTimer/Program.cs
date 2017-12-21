@@ -29,6 +29,7 @@ namespace JobTimer
             }
             else
             {
+                Application.DoEvents();
                 Application.Run(JobTimerForm.GetInstance);
                 mutex.ReleaseMutex();
                 //try

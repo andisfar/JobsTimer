@@ -2,10 +2,18 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Windows.Forms;
 
 namespace SingleTimerLib
 {
+    public enum InfoTypes
+    {
+        Default,
+        TimerEvents
+    }
+
     public enum TimerStates
     {
         Running,
@@ -133,6 +141,7 @@ namespace SingleTimerLib
         private void SetElapsedTimeLabel()
         {
             OnPropertyChangedEventHandler(nameof(RunningElapsedTime));
+            OnElapsedTimeChanging(this, new SingleTimerElapsedTimeChangingEventArgs(RunningElapsedTime, this));
         }
 
         private void IncrementTime()
@@ -184,7 +193,9 @@ namespace SingleTimerLib
 
         private void HeartBeat_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
+            heartBeat.Enabled = false;
             HandleTimerElapsed();
+            heartBeat.Enabled = true;            
         }
 
         public void HandleTimerElapsed()
@@ -255,6 +266,60 @@ namespace SingleTimerLib
             OnResetTimer();
         }
 
+        private void DebugPrint(InfoTypes showMe = InfoTypes.Default)
+        {
+            switch (showMe)
+            {
+                case InfoTypes.TimerEvents:
+                    {
+                        DebugPrint(string.Format("Name  = {0}", nameof(ElapsedTimeChanging)));
+                        try
+                        {
+                            foreach (Delegate @d in ElapsedTimeChangingInvocationList)
+                            {
+                                DebugPrint(string.Format("Value = {0}.{1}", d.GetMethodInfo().ReflectedType.Name, d.GetMethodInfo().Name));
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            DebugPrint(string.Format("Value = {0}", "Not Set"));
+                        }
+
+                        DebugPrint(string.Format("Name  = {0}", nameof(NameChanging)));
+                        try
+                        {
+                            foreach (Delegate @d in NameChangingInvocationList)
+                            {
+                                DebugPrint(string.Format("Value = {0}.{1}", d.GetMethodInfo().ReflectedType.Name, d.GetMethodInfo().Name));
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            DebugPrint(string.Format("Value = {0}", "Not Set"));
+                        }
+
+                        DebugPrint(string.Format("Name  = {0}", nameof(TimerReset)));
+                        try
+                        {
+                            foreach (Delegate @d in TimerResetInvocationList)
+                            {
+                                DebugPrint(string.Format("Value = {0}.{1}", d.GetMethodInfo().ReflectedType.Name, d.GetMethodInfo().Name));
+                            }
+                        }
+                        catch (NullReferenceException)
+                        {
+                            DebugPrint(string.Format("Value = {0}", "Not Set"));
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        DebugPrint(string.Format("Timer Row Index: {0}, Timer State: {1}", RowIndex, TimerState.ToString()));
+                        break;
+                    }
+            }
+        }
+
         public TimerStates TimerState { get => stopWatch.IsRunning ? TimerStates.Running : TimerStates.Stopped; }
 
         public void StopTimer()
@@ -277,8 +342,10 @@ namespace SingleTimerLib
                 heartBeat.Enabled = true;
             }
             DebugPrint(string.Format("'{0}' is now running!",CanonicalName));
+            DebugPrint(InfoTypes.TimerEvents);
             OnPropertyChangedEventHandler(nameof(RunningElapsedTime));
             OnPropertyChangedEventHandler(nameof(IsRunning));
+            OnElapsedTimeChanging(this, new SingleTimerElapsedTimeChangingEventArgs(RunningElapsedTime, this));
         }
 
         protected virtual void Dispose(bool disposing)

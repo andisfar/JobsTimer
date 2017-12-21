@@ -11,12 +11,6 @@ using SingleTimerLib;
 
 namespace JobTimer
 {
-    public enum InfoTypes
-    {
-        Default,
-        TimerEvents
-    }
-
     public partial class JobTimerForm : Form
     {
         private static JobTimerForm instance = null;        
@@ -116,13 +110,42 @@ namespace JobTimer
         {
             TimersList[t.RowIndex].NameChanging += Timer_NameChanging;
             TimersList[t.RowIndex].ElapsedTimeChanging += Timer_ElapsedTimeChanging;
+            TimersList[t.RowIndex].TimerReset += Timer_TimerElapsedTimeReset;
+        }
+
+        private void Timer_TimerElapsedTimeReset(object sender, SingleTimerLibEventArgs e)
+        {
+            Timers.Rows[e.Timer.RowIndex].SetTimerElapsedTime(e.Timer.RunningElapsedTime);
+            Timers.AcceptChanges();
+            ThredSafeUpdateChildMenuItemText((ToolStripMenuItem)_dropDownMenu.Items[e.Timer.RowIndex], e.Timer.MenuText);
         }
 
         private void Timer_ElapsedTimeChanging(object sender, SingleTimerElapsedTimeChangingEventArgs e, [CallerMemberName] string caller = "")
         {
             Timers.Rows[e.Timer.RowIndex].SetTimerElapsedTime(e.ElapsedTime);
             Timers.AcceptChanges();
+            ThredSafeUpdateChildMenuItemText((ToolStripMenuItem)_dropDownMenu.Items[e.Timer.RowIndex], e.Timer.MenuText);
             DebugPrint(e);
+        }
+
+        private void ThredSafeUpdateChildMenuItemText(ToolStripMenuItem cMI, string updatedMenuText)
+        {
+            if(_dropDownMenu.InvokeRequired)
+            {
+                _dropDownMenu.Invoke(new Action<ToolStripMenuItem,string>(ThredSafeUpdateChildMenuItemText), cMI, updatedMenuText);
+                return;
+            }
+            cMI.Text = updatedMenuText;
+        }
+
+        private void ThreadSafeUpdateTimerDataGridView(DataGridView timerDGV)
+        {
+           if(timerDGV.InvokeRequired)
+           {
+                timerDGV.Invoke(new Action<DataGridView>(ThreadSafeUpdateTimerDataGridView), timerDGV);
+                return;
+           }
+            timerDGV.Update();
         }
 
         private void DebugPrint(SingleTimerElapsedTimeChangingEventArgs e)
@@ -244,7 +267,7 @@ namespace JobTimer
 
             if(e.Button == MouseButtons.Right)
             {
-                //TimersDataGridView_CellBeginEdit(sender, new DataGridViewCellCancelEventArgs(0, (int)_cMi.Tag));
+                TimersDataGridView_CellBeginEdit(sender, new DataGridViewCellCancelEventArgs(0, (int)_cMi.Tag));
             }
         }
         private void JobTimerForm_KeyUp(object sender, KeyEventArgs e)
@@ -343,7 +366,7 @@ namespace JobTimer
                         {
                             foreach (Delegate @d in t.ElapsedTimeChangingInvocationList)
                             {
-                                DebugPrint(string.Format("Value = {0}", d.GetMethodInfo().Name));
+                                DebugPrint(string.Format("Value = {0}.{1}", d.GetMethodInfo().ReflectedType.Name, d.GetMethodInfo().Name));
                             }
                         }
                         catch (Exception)
@@ -356,7 +379,7 @@ namespace JobTimer
                         {
                             foreach (Delegate @d in t.NameChangingInvocationList)
                             {
-                                DebugPrint(string.Format("Value = {0}", d.GetMethodInfo().Name));
+                                DebugPrint(string.Format("Value = {0}.{1}", d.GetMethodInfo().ReflectedType.Name, d.GetMethodInfo().Name));
                             }
                         }
                         catch (Exception)
@@ -369,7 +392,7 @@ namespace JobTimer
                         {
                             foreach (Delegate @d in t.TimerResetInvocationList)
                             {
-                                DebugPrint(string.Format("Value = {0}", d.GetMethodInfo().Name));
+                                DebugPrint(string.Format("Value = {0}.{1}", d.GetMethodInfo().ReflectedType.Name, d.GetMethodInfo().Name));
                             }
                         }
                         catch (NullReferenceException)
@@ -396,8 +419,22 @@ namespace JobTimer
         {
             SingleTimerEditorForm editor = new SingleTimerEditorForm(e, needNewTimer, Editor_QueryTimerNeeded);//,Editor_QueryTimerNeeded);
             editor.QueryTimerNeeded += Editor_QueryTimerNeeded;
+            editor.RequestStartTimer += Editor_RequestStartTimer;
+            editor.RequestStopTimer += Editor_RequestStopTimer;
             t = editor.Timer;
             return editor.ShowDialog(this);
+        }
+
+        private void Editor_RequestStopTimer(object sender, SingleTimerEditorFormStopTimerEventArgs e)
+        {
+            DebugPrint(TimersList[e.RowIndex], InfoTypes.TimerEvents);
+            TimersList[e.RowIndex].StopTimer();
+        }
+
+        private void Editor_RequestStartTimer(object sender, SingleTimerEditorFormStartTimerEventArgs e)
+        {
+            DebugPrint(TimersList[e.RowIndex],InfoTypes.TimerEvents);
+            TimersList[e.RowIndex].StartTimer();
         }
 
         private void Editor_QueryTimerNeeded(object sender, SingleTimerEditorFormTimerNeededEventArgs e)
@@ -442,6 +479,7 @@ namespace JobTimer
         {
             if (ShowSingleTimerEditorForm(e,out SingleTimer t, false) == DialogResult.OK)
             {
+                DebugPrint(TimersList[DataRowIndex(e.RowIndex)], InfoTypes.TimerEvents);
                 Timers.Rows[DataRowIndex(e.RowIndex)].SetCanoniicalName(t.CanonicalName);
                 Timers.Rows[DataRowIndex(e.RowIndex)].SetTimerElapsedTime(t.RunningElapsedTime);               
             }

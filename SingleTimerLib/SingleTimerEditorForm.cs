@@ -20,7 +20,7 @@ namespace SingleTimerLib
 
         private SingleTimerLib.SingleTimer _timer = null;
 
-        public SingleTimerLib.SingleTimer Timer { get => _timer; set => _timer = value; }
+        public SingleTimerLib.SingleTimer Timer { get => _timer; }
         public int RowIndex { get => _rowIndex; }
 
         private bool _newTimerNeeded;
@@ -30,7 +30,7 @@ namespace SingleTimerLib
         public SingleTimerEditorForm(DataGridViewCellCancelEventArgs e, bool isNewRow = false, SingleTimerEditorFormTimerNeeded QueryTimerNeededHandler = null)
         {
             InitializeComponent();
-            Timer = null;
+            _timer = null;
             _rowIndex = e.RowIndex;
             _newTimerNeeded = isNewRow;
             StartIn = e.ColumnIndex;
@@ -47,7 +47,7 @@ namespace SingleTimerLib
         private void QueryRetrieveTimer(object sender, SingleTimerEditorFormTimerNeededEventArgs e)
         {
             QueryTimerNeeded?.Invoke(sender,e);
-            Timer = e.Timer;
+            _timer = e.Timer;
             if (Timer != null)
             {
                 //Timer.StopTimer();
@@ -89,7 +89,13 @@ namespace SingleTimerLib
         {            
             if(StartIn == 0)
             { ActiveControl = TimerNameTextBox; } else { ActiveControl = TimerElapsedTimeTextBox; }
+            Timer.ElapsedTimeChanging += Timer_ElapsedTimeChanging;
             Application.DoEvents();
+        }
+
+        private void Timer_ElapsedTimeChanging(object sender, SingleTimerElapsedTimeChangingEventArgs e, [System.Runtime.CompilerServices.CallerMemberName] string caller = "")
+        {
+            ThreadSafeUpdateOfTimerElapsedTime(e.ElapsedTime);
         }
 
         private void AcceptButton_Click(object sender, EventArgs e)
@@ -101,7 +107,8 @@ namespace SingleTimerLib
                 Timer.ReNameTimer(TimerNameTextBox.Text);
             }
 
-            if (editActions.Contains(EditActions.ChangedElapsedTimer))
+            if (editActions.Contains(EditActions.ChangedElapsedTimer) ||
+                editActions.Contains(EditActions.ResetElapsedTimer))
             {
                 Timer.SetElapsedTime(TimerElapsedTimeTextBox.Text);
             }
@@ -138,16 +145,33 @@ namespace SingleTimerLib
             CheckRunStopTimer();
         }
 
+        public delegate void StartTimerRequestedHandler(object sender, SingleTimerEditorFormStartTimerEventArgs e);
+        public event StartTimerRequestedHandler RequestStartTimer;
+
+        private void OnRequestStartTimer(object sender, SingleTimerEditorFormStartTimerEventArgs e)
+        {
+            RequestStartTimer?.Invoke(sender, e);
+        }
+
+        public delegate void StopTimerRequestedHandler(object sender, SingleTimerEditorFormStopTimerEventArgs e);
+        public event StopTimerRequestedHandler RequestStopTimer;
+
+        private void OnRequestStopTimer(object sender, SingleTimerEditorFormStopTimerEventArgs e)
+        {
+            RequestStopTimer?.Invoke(sender, e);
+        }
+
         private void CheckRunStopTimer()
         {
             UpdateRunStopImage();
             if (RunTimerCheckBox.Checked)
             {
-                Timer.StartTimer();
-                TimerElapsedTimeTextBox.Text = Timer.RunningElapsedTime;
+                OnRequestStartTimer(this, new SingleTimerEditorFormStartTimerEventArgs(Timer.RowIndex));
+                //Timer.StartTimer();
+                //TimerElapsedTimeTextBox.Text = Timer.RunningElapsedTime;
             }
             else
-                Timer.StopTimer();
+                OnRequestStopTimer(this, new SingleTimerEditorFormStopTimerEventArgs(Timer.RowIndex));
         }
 
         private void UpdateRunStopImage()
@@ -171,6 +195,28 @@ namespace SingleTimerLib
             {
                 if (!editActions.Contains(EditActions.ChangedElapsedTimer)) editActions.Add(EditActions.ChangedElapsedTimer);
             }
+        }
+    }
+
+    public class SingleTimerEditorFormStopTimerEventArgs
+    {
+        private int _rowIndex;
+        public int RowIndex { get => _rowIndex; }
+
+        public SingleTimerEditorFormStopTimerEventArgs(int rowIndex)
+        {
+            _rowIndex = rowIndex;
+        }
+    }
+
+    public class SingleTimerEditorFormStartTimerEventArgs
+    {
+        private int _rowIndex;
+        public int RowIndex { get => _rowIndex; }
+
+        public SingleTimerEditorFormStartTimerEventArgs(int rowIndex)
+        {
+            _rowIndex = rowIndex;
         }
     }
 
