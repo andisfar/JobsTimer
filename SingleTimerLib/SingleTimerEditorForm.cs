@@ -196,6 +196,16 @@ namespace SingleTimerLib
                 if (!editActions.Contains(EditActions.ChangedElapsedTimer)) editActions.Add(EditActions.ChangedElapsedTimer);
             }
         }
+
+        private void TimerNameTextBox_TextChanged(object sender, EventArgs e)
+        {
+            acceptButton.Enabled = true;
+        }
+
+        private void TimerElapsedTimeTextBox_TextChanged(object sender, EventArgs e)
+        {
+            acceptButton.Enabled = true;
+        }
     }
 
     public class SingleTimerEditorFormStopTimerEventArgs

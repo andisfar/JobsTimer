@@ -147,6 +147,7 @@
             // TimersDataGridView
             // 
             this.TimersDataGridView.AllowUserToAddRows = false;
+            this.TimersDataGridView.AllowUserToDeleteRows = false;
             this.TimersDataGridView.AutoGenerateColumns = false;
             this.TimersDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.TimersDataGridView.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
@@ -160,10 +161,12 @@
             this.TimersDataGridView.Location = new System.Drawing.Point(0, 35);
             this.TimersDataGridView.Margin = new System.Windows.Forms.Padding(2);
             this.TimersDataGridView.Name = "TimersDataGridView";
+            this.TimersDataGridView.ReadOnly = true;
             this.TimersDataGridView.RowTemplate.Height = 31;
             this.TimersDataGridView.Size = new System.Drawing.Size(428, 181);
             this.TimersDataGridView.TabIndex = 2;
             this.TimersDataGridView.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.TimersDataGridView_CellBeginEdit);
+            this.TimersDataGridView.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.TimersDataGridView_CellMouseDown);
             // 
             // timerNameDataGridViewTextBoxColumn
             // 
@@ -345,9 +348,9 @@
             this.bindingNavigatorDeleteItem});
             this.SavedTimersBindingNavigator.Location = new System.Drawing.Point(0, 34);
             this.SavedTimersBindingNavigator.MoveFirstItem = this.bindingNavigatorMoveFirstItem;
-            this.SavedTimersBindingNavigator.MoveLastItem = this.bindingNavigatorMoveLastItem;
-            this.SavedTimersBindingNavigator.MoveNextItem = this.bindingNavigatorMoveNextItem;
-            this.SavedTimersBindingNavigator.MovePreviousItem = this.bindingNavigatorMovePreviousItem;
+            this.SavedTimersBindingNavigator.MoveLastItem = null;
+            this.SavedTimersBindingNavigator.MoveNextItem = null;
+            this.SavedTimersBindingNavigator.MovePreviousItem = null;
             this.SavedTimersBindingNavigator.Name = "SavedTimersBindingNavigator";
             this.SavedTimersBindingNavigator.PositionItem = this.bindingNavigatorPositionItem;
             this.SavedTimersBindingNavigator.Size = new System.Drawing.Size(428, 35);
@@ -360,7 +363,6 @@
             this.bindingNavigatorCountItem.Size = new System.Drawing.Size(35, 32);
             this.bindingNavigatorCountItem.Text = "of {0}";
             this.bindingNavigatorCountItem.ToolTipText = "Total number of items";
-            this.bindingNavigatorCountItem.Visible = false;
             // 
             // bindingNavigatorDeleteItem
             // 
@@ -405,7 +407,6 @@
             this.bindingNavigatorPositionItem.Size = new System.Drawing.Size(29, 23);
             this.bindingNavigatorPositionItem.Text = "0";
             this.bindingNavigatorPositionItem.ToolTipText = "Current position";
-            this.bindingNavigatorPositionItem.Visible = false;
             // 
             // bindingNavigatorSeparator1
             // 
