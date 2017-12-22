@@ -19,7 +19,7 @@ namespace SingleTimerLib
         public SingleTimer this[int key]
         {
             get
-            {             
+            {
                 return timers[key];
             }
 
@@ -27,7 +27,7 @@ namespace SingleTimerLib
             {
                 timers[key] = value;
             }
-        }
+        }       
 
         public int Count
         {
